@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Git history editor</title>
+
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css">
+    <!--Import prism.css-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.6.0/themes/prism.css">
+    <!--Import custom css-->
+    <link rel="stylesheet" href="css/stylesheet.css">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="Git history editor">
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8">
+
+</head>
+<body>
+<!--Header-->
+<header class="section deep-orange lighten-2">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m9">
+                <h2 class="header center-on-small-only">
+                    Git history editor
+                </h2>
+                <h4 class="light white-text center-on-small-only">
+                    Yeah bitch
+                </h4>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <p>
+                    To import your commit history, execute the following command in your project directory, then paste
+                    the result below:
+                </p>
+                <pre><code class="language-bash"># All commit history
+git log --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64
+
+# Only the last 10 commits
+git log -n 10 --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64</code></pre>
+            </div>
+        </div>
+        <div class="row valign-wrapper">
+            <div class="input-field col s8 valign">
+                <input id="input" type="text" class="validate" v-model="b64log">
+                <label for="input">Paste here</label>
+            </div>
+            <div class="col s4">
+                <a class="waves-effect waves-light btn deep-orange lighten-2" v-on:click="importCommits">
+                    <i class="material-icons left">cloud</i>
+                    Import
+                </a>
+            </div>
+        </div>
+        <div class="row results">
+            <table v-cloak v-if="currentCommits.length > 0" class="highlight responsive-table">
+                <thead>
+                <tr>
+                    <th>SHA</th>
+                    <th>Name</th>
+                    <th>E-mail</th>
+                    <th>Date</th>
+                    <th>Message</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="commit in currentCommits">
+                    <td>{{ commit.sha.substring(0, 7) }}</td>
+                    <td>
+                        <div v-if="commit.edited.name === false" >
+                            <a v-on:click="commit.edited.name=true" href="javascript:void(0)">
+                                {{ commit.name }}
+                            </a>
+                        </div>
+                        <div v-else class="input-field inline">
+                            <input v-model="commit.name"  v-bind:id="commit.sha + '-name'" placeholder="Commiter name">
+                        </div>
+                    </td>
+
+                    <td>
+                        <div v-if="commit.edited.email === false" >
+                            <a v-on:click="commit.edited.email=true" href="javascript:void(0)">
+                                {{ commit.email }}
+                            </a>
+                        </div>
+                        <div v-else class="input-field inline">
+                            <input v-model="commit.email"  v-bind:id="commit.sha + '-email'" placeholder="Commiter e-mail" type="email" class="validate">
+                        </div>
+                    </td>
+
+                    <td>
+                        <div v-if="commit.edited.timestamp === false" >
+                            <a v-on:click="commit.edited.timestamp=true; initDatePickers()" href="javascript:void(0)">
+                                {{ commit.timestamp }}
+                            </a>
+                        </div>
+                        <div v-else class="input-field inline">
+                            <input v-model="commit.date"  v-bind:id="commit.sha + '-date'" type="date" class="datepicker">
+                        </div>
+                    </td>
+
+                    <td>{{ commit.message }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!--Footer-->
+<footer class="page-footer deep-orange lighten-1">
+    <div class="container">
+        <div class="row">
+            <div class="col s4 copyright">
+                <a class="grey-text text-lighten-4"
+                   href="https://github.com/bokub" target="_blank">
+                    © 2017 bokub
+                </a>
+            </div>
+            <div class="col s4 center">
+                <a href="https://github.com/bokub/git-history-editor" target="_blank">
+                    <img src="img/github-logo.png" height="32" alt="Github logo">
+                </a>
+            </div>
+            <div class="s4">
+                <div class="right">
+                    <a v-cloak class="github-button right" href="https://github.com/bokub/git-history-editor" data-icon="octicon-star" data-style="mega" data-count-href="/bokub/git-history-editor/stargazers" data-count-api="/repos/bokub/git-history-editor#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star bokub/git-history-editor on GitHub">Star</a>                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<!--Import jQuery-->
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+<!--Import materialize.js-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
+<!--Import clipboard.js-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.6.0/clipboard.min.js"></script>
+<!--Import prism.js-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.6.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.6.0/components/prism-bash.min.js"></script>
+<!--Datetime-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.js"></script>
+<!--Import Vue.js-->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<!--Import javascript for the page -->
+<script src="js/vue.js"></script>
+<!-- Github button -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+</html>

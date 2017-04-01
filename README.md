@@ -1,2 +1,3 @@
 # git-history-editor
-Work in progress
+
+## Work in progress

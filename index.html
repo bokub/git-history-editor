@@ -19,35 +19,45 @@
 
 </head>
 <body>
-<!--Header-->
-<header class="section deep-orange lighten-2">
-    <div class="container">
-        <div class="row">
-            <div class="col s12 m9">
-                <h2 class="header center-on-small-only">
-                    Git history editor
-                </h2>
-                <h4 class="light white-text center-on-small-only">
-                    Yeah bitch
-                </h4>
-            </div>
-        </div>
-    </div>
-</header>
 
 <main>
-    <div class="container">
+    <!--Navbar-->
+    <nav class="nav-extended">
+        <div class="nav-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col s12">
+                        <h2 class="header center-on-small-only">
+                            Git history editor
+                        </h2>
+                    </div>
+                </div>
+                <div class="nav-content">
+                    <div class="row">
+                        <div class="col s12">
+                            <ul class="tabs tabs-transparent">
+                                <li class="tab"><a href="#tab-import">Import</a></li>
+                                <li class="tab" v-bind:class="{ disabled: step < 2 }"><a href="#tab-edit">Edit</a></li>
+                                <li class="tab" v-bind:class="{ disabled: step < 2 }"><a href="#tab-export">Export</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!--Step 1: import-->
+    <div id="tab-import" class="container">
         <div class="row">
             <div class="col s12">
                 <p>
                     To import your commit history, execute the following command in your project directory, then paste
                     the result below:
                 </p>
-                <pre><code class="language-bash"># All commit history
-git log --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64
-
-# Only the last 10 commits
-git log -n 10 --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64</code></pre>
+                <pre><code
+                        class="language-bash">git log -1000 --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64</code></pre>
             </div>
         </div>
         <div class="row valign-wrapper">
@@ -56,69 +66,130 @@ git log -n 10 --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64</code></pre>
                 <label for="input">Paste here</label>
             </div>
             <div class="col s4">
-                <a class="waves-effect waves-light btn deep-orange lighten-2" v-on:click="importCommits">
+                <a class="waves-effect waves-light btn" v-on:click="importCommits">
                     <i class="material-icons left">cloud</i>
                     Import
                 </a>
             </div>
         </div>
+    </div>
+
+    <!--Step 2: edit-->
+    <div v-cloak id="tab-edit" class="container" style="display: none">
+        <div class="section">
+            <p>
+                Click on a field to start editing.
+            </p>
+        </div>
+
         <div class="row results">
-            <table v-cloak v-if="currentCommits.length > 0" class="highlight responsive-table">
+            <table class="striped">
                 <thead>
                 <tr>
+                    <th></th>
                     <th>SHA</th>
                     <th>Name</th>
                     <th>E-mail</th>
                     <th>Date</th>
-                    <th>Message</th>
+                    <th>Time</th>
+                    <th>Commit message</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="commit in currentCommits">
-                    <td>{{ commit.sha.substring(0, 7) }}</td>
+                <tr v-for="(commit, i) in currentCommits">
+
+                    <!--Reset-->
+                    <td class="grey-text text-darken-2">
+                        <a href="javascript:void(0)" v-on:click="resetCommit(i)" class="black-text">
+                            <i class="tiny material-icons">replay</i>
+                        </a>
+                    </td>
+
+                    <!--SHA-->
+                    <td class="grey-text text-darken-2">{{ commit.sha.substring(0, 7) }}</td>
+
+                    <!--Name-->
                     <td>
-                        <div v-if="commit.edited.name === false" >
-                            <a v-on:click="commit.edited.name=true" href="javascript:void(0)">
+                        <div v-if="commit.edited.name === false">
+                            <a v-on:click="commit.edited.name=true" href="javascript:void(0)" class="teal-text">
                                 {{ commit.name }}
                             </a>
                         </div>
-                        <div v-else class="input-field inline">
-                            <input v-model="commit.name"  v-bind:id="commit.sha + '-name'" placeholder="Commiter name">
+                        <div v-else class="input-field">
+                            <input v-model="commit.name" v-bind:id="commit.sha + '-name'"
+                                   placeholder="Commiter name">
                         </div>
                     </td>
 
-                    <td>
-                        <div v-if="commit.edited.email === false" >
-                            <a v-on:click="commit.edited.email=true" href="javascript:void(0)">
+                    <!--Email-->
+                    <td class="commit-email">
+                        <div v-if="commit.edited.email === false">
+                            <a v-on:click="commit.edited.email=true" href="javascript:void(0)" class="teal-text">
                                 {{ commit.email }}
                             </a>
                         </div>
-                        <div v-else class="input-field inline">
-                            <input v-model="commit.email"  v-bind:id="commit.sha + '-email'" placeholder="Commiter e-mail" type="email" class="validate">
+                        <div v-else class="input-field">
+                            <input v-model="commit.email" v-bind:id="commit.sha + '-email'"
+                                   placeholder="Commiter e-mail" type="email" class="validate">
                         </div>
                     </td>
 
-                    <td>
-                        <div v-if="commit.edited.timestamp === false" >
-                            <a v-on:click="commit.edited.timestamp=true; initDatePickers()" href="javascript:void(0)">
-                                {{ commit.timestamp }}
+                    <!--Date-->
+                    <td class="commit-date">
+                        <div v-if="commit.edited.date === false">
+                            <a v-on:click="commit.edited.date=true; initDatePickers()" href="javascript:void(0)"
+                               class="teal-text">
+                                {{ commit.date }}
                             </a>
                         </div>
-                        <div v-else class="input-field inline">
-                            <input v-model="commit.date"  v-bind:id="commit.sha + '-date'" type="date" class="datepicker">
+                        <div v-else class="input-field">
+                            <input v-model="commit.date" v-bind:id="commit.sha + '-date'" type="date"
+                                   class="datepicker">
                         </div>
                     </td>
 
-                    <td>{{ commit.message }}</td>
+                    <!--Time-->
+                    <td class="commit-time">
+                        <div v-if="commit.edited.time === false">
+                            <a v-on:click="commit.edited.time=true" href="javascript:void(0)"
+                               class="teal-text">
+                                {{ commit.time }}
+                            </a>
+                        </div>
+                        <div v-else class="input-field">
+                            <input v-model="commit.time" v-bind:id="commit.sha + '-time'">
+                        </div>
+                    </td>
+
+                    <!--Message-->
+                    <td class="commit-message grey-text text-darken-2">{{ commit.message }}</td>
                 </tr>
                 </tbody>
             </table>
         </div>
+
+        <div class="fixed-action-btn">
+            <a class="btn-floating btn-large" href="javascript:void(0)" v-on:click="changeStep('export')">
+                <i class="large material-icons">done</i>
+            </a>
+        </div>
     </div>
+
+    <!--Step 3: export-->
+    <div v-cloak id="tab-export" class="container" style="display: none">
+        <div class="row">
+            <a class="waves-effect waves-light btn clipboard" v-bind:data-clipboard-text="output">
+                <i class="material-icons left">cloud</i>
+                Copy to clipboard
+            </a>
+            <pre><code class="language-bash" id="output">{{ output }}</code></pre>
+        </div>
+    </div>
+
 </main>
 
 <!--Footer-->
-<footer class="page-footer deep-orange lighten-1">
+<footer class="page-footer">
     <div class="container">
         <div class="row">
             <div class="col s4 copyright">
@@ -134,7 +205,11 @@ git log -n 10 --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64</code></pre>
             </div>
             <div class="s4">
                 <div class="right">
-                    <a v-cloak class="github-button right" href="https://github.com/bokub/git-history-editor" data-icon="octicon-star" data-style="mega" data-count-href="/bokub/git-history-editor/stargazers" data-count-api="/repos/bokub/git-history-editor#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star bokub/git-history-editor on GitHub">Star</a>                </div>
+                    <a v-cloak class="github-button right" href="https://github.com/bokub/git-history-editor"
+                       data-icon="octicon-star" data-style="mega" data-count-href="/bokub/git-history-editor/stargazers"
+                       data-count-api="/repos/bokub/git-history-editor#stargazers_count"
+                       data-count-aria-label="# stargazers on GitHub"
+                       aria-label="Star bokub/git-history-editor on GitHub">Star</a></div>
             </div>
         </div>
     </div>
@@ -143,7 +218,7 @@ git log -n 10 --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64</code></pre>
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"
         integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 <!--Import materialize.js-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/js/materialize.min.js"></script>
 <!--Import clipboard.js-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.6.0/clipboard.min.js"></script>
 <!--Import prism.js-->

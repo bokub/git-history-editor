@@ -12,9 +12,27 @@ body
   main
     flex: 1 0 auto
 
-    textarea
-      max-height: 100px
+    #tab-edit
+      table
+        .commit-message
+          max-width: 300px
+          padding-left: 20px
+          font-size: 0.9em
+        .commit-date
+          min-width: 110px
+          max-width: 110px
+        .commit-time
+          min-width: 90px
+          max-width: 90px
 
+        input[id$="-date"]
+          width: 100px
+        input[id$="-time"]
+          width: 80px
+        .input-field
+          margin-top: -3px
+          input
+            margin-bottom: -3px
   footer
     .copyright
       margin-top: 8px

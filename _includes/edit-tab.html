@@ -1,0 +1,99 @@
+<div v-cloak id="tab-edit" class="container" style="display: none">
+    <div class="section">
+        <p>
+            Click on a field to start editing.
+        </p>
+    </div>
+
+    <div class="row results">
+        <table class="striped">
+            <thead>
+            <tr>
+                <th></th>
+                <th>SHA</th>
+                <th>Name</th>
+                <th>E-mail</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Commit message</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(commit, i) in currentCommits">
+
+                <!--Reset-->
+                <td class="grey-text text-darken-2">
+                    <a href="javascript:void(0)" v-on:click="resetCommit(i)" class="black-text">
+                        <i class="tiny material-icons">replay</i>
+                    </a>
+                </td>
+
+                <!--SHA-->
+                <td class="grey-text text-darken-2">{{ commit.sha.substring(0, 7) }}</td>
+
+                <!--Name-->
+                <td>
+                    <div v-if="commit.edited.name === false">
+                        <a v-on:click="commit.edited.name=true" href="javascript:void(0)" class="teal-text">
+                            {{ commit.name }}
+                        </a>
+                    </div>
+                    <div v-else class="input-field">
+                        <input v-model="commit.name" v-bind:id="commit.sha + '-name'"
+                               placeholder="Commiter name">
+                    </div>
+                </td>
+
+                <!--Email-->
+                <td class="commit-email">
+                    <div v-if="commit.edited.email === false">
+                        <a v-on:click="commit.edited.email=true" href="javascript:void(0)" class="teal-text">
+                            {{ commit.email }}
+                        </a>
+                    </div>
+                    <div v-else class="input-field">
+                        <input v-model="commit.email" v-bind:id="commit.sha + '-email'"
+                               placeholder="Commiter e-mail" type="email" class="validate">
+                    </div>
+                </td>
+
+                <!--Date-->
+                <td class="commit-date">
+                    <div v-if="commit.edited.date === false">
+                        <a v-on:click="commit.edited.date=true; initDatePickers()" href="javascript:void(0)"
+                           class="teal-text">
+                            {{ commit.date }}
+                        </a>
+                    </div>
+                    <div v-else class="input-field">
+                        <input v-model="commit.date" v-bind:id="commit.sha + '-date'" type="date"
+                               class="datepicker">
+                    </div>
+                </td>
+
+                <!--Time-->
+                <td class="commit-time">
+                    <div v-if="commit.edited.time === false">
+                        <a v-on:click="commit.edited.time=true" href="javascript:void(0)"
+                           class="teal-text">
+                            {{ commit.time }}
+                        </a>
+                    </div>
+                    <div v-else class="input-field">
+                        <input v-model="commit.time" v-bind:id="commit.sha + '-time'">
+                    </div>
+                </td>
+
+                <!--Message-->
+                <td class="commit-message grey-text text-darken-2">{{ commit.message }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="fixed-action-btn">
+        <a class="btn-floating btn-large" href="javascript:void(0)" v-on:click="changeStep('export')">
+            <i class="large material-icons">done</i>
+        </a>
+    </div>
+</div>

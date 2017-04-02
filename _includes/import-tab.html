@@ -1,0 +1,24 @@
+<div id="tab-import" class="container">
+    <div class="row">
+        <div class="col s12">
+            <p>
+                To import your commit history, execute the following command in your project directory, then paste
+                the result below:
+            </p>
+            <pre><code
+                    class="language-bash">git log -1000 --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64</code></pre>
+        </div>
+    </div>
+    <div class="row valign-wrapper">
+        <div class="input-field col s8 valign">
+            <input id="input" type="text" class="validate" v-model="b64log">
+            <label for="input">Paste here</label>
+        </div>
+        <div class="col s4">
+            <a class="waves-effect waves-light btn" v-on:click="importCommits">
+                <i class="material-icons left">cloud</i>
+                Import
+            </a>
+        </div>
+    </div>
+</div>

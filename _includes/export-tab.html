@@ -1,0 +1,9 @@
+<div v-cloak id="tab-export" class="container" style="display: none">
+    <div class="row">
+        <a class="waves-effect waves-light btn clipboard" v-bind:data-clipboard-text="output">
+            <i class="material-icons left">cloud</i>
+            Copy to clipboard
+        </a>
+        <pre><code class="language-bash" id="output">{{ output }}</code></pre>
+    </div>
+</div>

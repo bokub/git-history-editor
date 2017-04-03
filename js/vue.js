@@ -1,6 +1,7 @@
 //noinspection JSUnusedGlobalSymbols
 var v = new Vue({
     el: 'main',
+    delimiters: ['[[', ']]'],
     data: {
         b64log: '',
         originalCommits: [],

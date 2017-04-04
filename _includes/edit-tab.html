@@ -66,8 +66,8 @@
                         </a>
                     </div>
                     <div v-else class="input-field">
-                        <input v-model="commit.date" v-bind:id="commit.sha + '-date'" type="date"
-                               class="datepicker">
+                        <input v-model="commit.date" v-bind:data-commit-number="i" v-bind:id="commit.sha + '-date'" type="date"
+                               onchange="v.setDate($(this).attr('data-commit-number'), $(this).val())" class="datepicker">
                     </div>
                 </td>
 

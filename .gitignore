@@ -1,4 +1,4 @@
-*.css
-*.css.map
+css/*.css
+css/*.css.map
 _site/
 .idea/

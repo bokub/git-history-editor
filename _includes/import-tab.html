@@ -3,9 +3,9 @@
         <div class="section col s12">
             <p>
                 <b>Git History Editor</b> is a simple tool intended to help you rewrite you git history.
+                Just import the result of your <code>git log</code> to get started.
                 <br>
-                Just import the result of your <code>git log</code> to get started. You'll be able to edit author names
-                and emails, commit messages, even the time and date of your commits.
+                You'll be able to edit author names and emails, commit messages, even the time and date of your commits.
             </p>
         </div>
     </div>
@@ -20,27 +20,33 @@
         </div>
     </div>
     <div class="row valign-wrapper">
-        <div class="input-field col s8 valign">
+
+        <div class="input-field input-div valign">
             <input id="input" type="text" class="validate" v-model="b64log">
             <label for="input">Paste here</label>
         </div>
-        <div class="col s4">
-            <a class="waves-effect waves-light btn" v-on:click="importCommits">
-                <i class="material-icons left">cloud</i>
+
+        <div class="btn-div valign">
+            <a class="waves-effect waves-light btn import-btn" v-on:click="importCommits">
+                <i class="material-icons left">import_export</i>
                 Import
             </a>
         </div>
+
     </div>
     <div class="row description secondary-description">
         <div class="section col s10 offset-s1 card red accent-2">
             <p class="card-content white-text">
-                <b>Warning:</b> Rewriting git history will change the commit's hashes, and your edited branch will not
-                converge with the original branch.
-                <br>
-                You might not want to use this tool on commits already pushed, unless you work alone on the project.
+                <b>Warning:</b> When changing the information of past commits, your are effectively <b>rewriting commit history</b>.
                 <br>
                 <br>
-                To overwrite commits already pushed, you'll have to use <code>git push --force</code>.
+                This is nothing to take lightly: you will create new commit objects in this process, which can become a
+                serious problem for your collaborators, because they might have already based new work on some of the original commits.
+                <br>
+                Therefore, you might not want to use this tool on commits already pushed, unless you work alone on the project.
+                <br>
+                <br>
+                If you're sure about what you're doing, you can overwrite pushed commits using <code>git push --force</code>.
             </p>
         </div>
     </div>

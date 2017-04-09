@@ -2,7 +2,7 @@
     <div class="row description main-description">
         <div class="section col s12">
             <p>
-                <b>Git History Editor</b> is a simple tool intended to help you rewrite you git history.
+                <b>Git History Editor</b> is a simple tool intended to help you edit your git history.
                 Just import the result of your <code>git log</code> to get started.
                 <br>
                 You'll be able to edit author names and emails, commit messages, even the time and date of your commits.
@@ -22,13 +22,13 @@
     <div class="row valign-wrapper">
 
         <div class="input-field input-div valign">
-            <input id="input" type="text" class="validate" v-model="b64log">
+            <input id="input" type="text" v-model="b64log" v-bind:class="{invalid: importFailure}">
             <label for="input">Paste here</label>
         </div>
 
         <div class="btn-div valign">
             <a class="waves-effect waves-light btn import-btn" v-on:click="importCommits">
-                <i class="material-icons left">import_export</i>
+                <i class="material-icons left">file_download</i>
                 Import
             </a>
         </div>

@@ -4,15 +4,20 @@ var v = new Vue({
     delimiters: ['[[', ']]'],
     data: {
         b64log: '',
+        importFailure: false,
         originalCommits: [],
         currentCommits: [],
         step: 1,
         output: ''
-
     },
     methods: {
         importCommits: function () {
             var decoded = b64DecodeUnicode(this.b64log.replace(/\s+/g, ''));
+            if (decoded === 'INVALID_BASE64'){
+                this.importFailure = true;
+                return;
+            }
+
             var commitsStr = decoded.split(/\n/);
             this.originalCommits = [];
             this.currentCommits = [];
@@ -20,8 +25,10 @@ var v = new Vue({
             for (var c in commitsStr) {
                 var splitted = commitsStr[c].split('*#');
                 if (splitted.length !== 5) {
-                    continue;
+                    this.importFailure = true;
+                    return;
                 }
+
                 var commit = {
                     sha: splitted[0],
                     name: splitted[1],
@@ -44,6 +51,7 @@ var v = new Vue({
             }
 
             if (this.currentCommits.length > 0) {
+                this.importFailure = false;
                 this.changeStep('edit');
             }
         },
@@ -73,6 +81,7 @@ var v = new Vue({
         exportScript: function () {
             var br = '\n';
             var commitsToChange = 0;
+            console.log('exporting');
 
             var script = ''
                 // + '#!/usr/bin/env bash' + br
@@ -115,12 +124,12 @@ var v = new Vue({
             script += 'fi" && rm -fr "$(git rev-parse --git-dir)/refs/original/"' + br;
 
             if (commitsToChange === 0) {
-                console.log('Nothing to change');
-                script = '';
+                this.output = '';
+                return;
             }
-
             this.output = script;
             this.$nextTick(function () {
+                console.log(this.output);
                 Prism.highlightElement($('#output')[0]);
             })
         },
@@ -231,9 +240,14 @@ function clone(obj) {
 }
 
 function b64DecodeUnicode(str) {
-    return decodeURIComponent(Array.prototype.map.call(atob(str), function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
+    try {
+        return decodeURIComponent(Array.prototype.map.call(atob(str), function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+    }
+    catch(e) {
+        return('INVALID_BASE64')
+    }
 }
 
 function computeDiff(current, original) {

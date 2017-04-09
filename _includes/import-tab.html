@@ -1,6 +1,16 @@
 <div id="tab-import" class="container">
+    <div class="row description main-description">
+        <div class="section col s12">
+            <p>
+                <b>Git History Editor</b> is a simple tool intended to help you rewrite you git history.
+                <br>
+                Just import the result of your <code>git log</code> to get started. You'll be able to edit author names
+                and emails, commit messages, even the time and date of your commits.
+            </p>
+        </div>
+    </div>
     <div class="row">
-        <div class="col s12">
+        <div class="col s12 instructions">
             <p>
                 To import your commit history, execute the following command in your project directory, then paste
                 the result below:
@@ -19,6 +29,19 @@
                 <i class="material-icons left">cloud</i>
                 Import
             </a>
+        </div>
+    </div>
+    <div class="row description secondary-description">
+        <div class="section col s10 offset-s1 card red accent-2">
+            <p class="card-content white-text">
+                <b>Warning:</b> Rewriting git history will change the commit's hashes, and your edited branch will not
+                converge with the original branch.
+                <br>
+                You might not want to use this tool on commits already pushed, unless you work alone on the project.
+                <br>
+                <br>
+                To overwrite commits already pushed, you'll have to use <code>git push --force</code>.
+            </p>
         </div>
     </div>
 </div>

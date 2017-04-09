@@ -261,3 +261,9 @@ function computeDiff(current, original) {
     }
     return diff;
 }
+
+function autoFocus(el) {
+    var $el = $(el);
+    $el.removeAttr('onmousemove');
+    $el.focus();
+}

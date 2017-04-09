@@ -40,7 +40,7 @@
                     </div>
                     <div v-else class="input-field">
                         <input v-model="commit.name" v-bind:id="commit.sha + '-name'"
-                               placeholder="Commiter name" onmousemove="$(this).focus(); $(this).removeAttr('onmousemove')">
+                               placeholder="Commiter name" onmousemove="autoFocus(this)">
                     </div>
                 </td>
 
@@ -53,8 +53,7 @@
                     </div>
                     <div v-else class="input-field">
                         <input v-model="commit.email" v-bind:id="commit.sha + '-email'"
-                               placeholder="Commiter e-mail" type="email" class="validate"
-                               onmousemove="$(this).focus(); $(this).removeAttr('onmousemove')">
+                               placeholder="Commiter e-mail" type="email" class="validate" onmousemove="autoFocus(this)">
                     </div>
                 </td>
 
@@ -69,7 +68,7 @@
                     <div v-else class="input-field">
                         <input v-model="commit.date" v-bind:data-commit-number="i" v-bind:id="commit.sha + '-date'" type="date"
                                onchange="v.setDate($(this).attr('data-commit-number'), $(this).val())" class="datepicker"
-                               onmousemove="$(this).focus(); $(this).removeAttr('onmousemove')">
+                               onmousemove="autoFocus(this)">
                     </div>
                 </td>
 
@@ -84,7 +83,7 @@
                     <div v-else class="input-field">
                         <input v-model="commit.time" v-bind:data-commit-number="i" v-bind:id="commit.sha + '-time'"
                                onchange="v.setTime($(this).attr('data-commit-number'), $(this).val())" name="timepicker" class="timepicker"
-                               onmousemove="$(this).focus(); $(this).removeAttr('onmousemove')">
+                               onmousemove="autoFocus(this)">
                     </div>
 
                 </td>

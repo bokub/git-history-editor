@@ -15,8 +15,14 @@
                 To import your commit history, execute the following command in your project directory, then paste
                 the result below:
             </p>
-            <pre><code
-                    class="language-bash">git log -1000 --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64</code></pre>
+            <div class="valign-wrapper command-div">
+                <a class="waves-effect waves-light btn clipboard" data-clipboard-target="#git-log-code">
+                    <i class="material-icons left">content_copy</i>
+                    Copy
+                </a>
+                <pre class="valign"><code id="git-log-code"
+                        class="language-bash">git log -1000 --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64</code></pre>
+            </div>
         </div>
     </div>
     <div class="row valign-wrapper">

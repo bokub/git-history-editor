@@ -1,4 +1,4 @@
-<div v-cloak id="tab-edit" class="container" style="display: none">
+<div v-cloak id="tab-edit" class="container content z-depth-1" style="display: none">
     <div class="section">
         <p>
             Click on a field to start editing. Click on <i class="tiny material-icons">replay</i> to reset a commit to
@@ -37,7 +37,7 @@
                 <!--Name-->
                 <td>
                     <div v-if="commit.edited.name === false">
-                        <a v-on:click="commit.edited.name=true" href="javascript:void(0)" class="teal-text">
+                        <a v-on:click="commit.edited.name=true" href="javascript:void(0)" class="link">
                             [[ commit.name ]]
                         </a>
                     </div>
@@ -50,13 +50,13 @@
                 <!--Email-->
                 <td class="commit-email">
                     <div v-if="commit.edited.email === false">
-                        <a v-on:click="commit.edited.email=true" href="javascript:void(0)" class="teal-text">
+                        <a v-on:click="commit.edited.email=true" href="javascript:void(0)" class="link">
                             [[ commit.email ]]
                         </a>
                     </div>
                     <div v-else class="input-field">
                         <input v-model="commit.email" v-bind:id="commit.sha + '-email'"
-                               placeholder="Commiter e-mail" type="email" class="validate" onmousemove="autoFocus(this)">
+                               placeholder="Commiter e-mail" type="email" onmousemove="autoFocus(this)">
                     </div>
                 </td>
 
@@ -64,7 +64,7 @@
                 <td class="commit-date">
                     <div v-if="commit.edited.date === false">
                         <a v-on:click="commit.edited.date=true; initDatePickers()" href="javascript:void(0)"
-                           class="teal-text">
+                           class="link">
                             [[ commit.date ]]
                         </a>
                     </div>
@@ -79,7 +79,7 @@
                 <td class="commit-time">
                     <div v-if="commit.edited.time === false">
                         <a v-on:click="commit.edited.time=true; initTimePickers()" href="javascript:void(0)"
-                           class="teal-text">
+                           class="link">
                             [[ commit.time ]]
                         </a>
                     </div>
@@ -99,7 +99,7 @@
     </div>
 
     <div class="fixed-action-btn">
-        <a class="btn-floating btn-large" href="javascript:void(0)" v-on:click="changeStep('export')">
+        <a class="btn-floating btn-large accent" href="javascript:void(0)" v-on:click="changeStep('export')">
             <i class="large material-icons">done</i>
         </a>
     </div>

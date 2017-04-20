@@ -1,11 +1,11 @@
-<div id="tab-import" class="container">
+<div id="tab-import" class="container content z-depth-1">
     <div class="row description main-description">
         <div class="section col s12">
             <p>
                 <b>Git History Editor</b> is a simple tool intended to help you edit your git history.
                 Just import the result of your <code>git log</code> to get started.
                 <br>
-                You'll be able to edit author names and emails, commit messages, even the time and date of your commits.
+                You'll be able to edit author names and emails, commit messages, and even the time and date of your commits.
             </p>
         </div>
     </div>
@@ -16,7 +16,7 @@
                 the result below:
             </p>
             <div class="valign-wrapper command-div">
-                <a class="waves-effect waves-light btn clipboard" data-clipboard-target="#git-log-code">
+                <a class="waves-effect waves-light btn clipboard accent" data-clipboard-target="#git-log-code">
                     <i class="material-icons left">content_copy</i>
                     Copy
                 </a>
@@ -33,7 +33,7 @@
         </div>
 
         <div class="btn-div valign">
-            <a class="waves-effect waves-light btn import-btn" v-on:click="importCommits">
+            <a class="waves-effect waves-light btn import-btn accent" v-on:click="importCommits">
                 <i class="material-icons left">file_download</i>
                 Import
             </a>
@@ -41,8 +41,8 @@
 
     </div>
     <div class="row description secondary-description">
-        <div class="section col s10 offset-s1 card red accent-2">
-            <p class="card-content white-text">
+        <div class="section col s10 offset-s1 card">
+            <p class="card-content">
                 <b>Warning:</b> When changing the information of past commits, your are effectively <b>rewriting commit history</b>.
                 <br>
                 <br>

@@ -1,13 +1,28 @@
 ---
 ---
+$primary: #f44e68
+$primary-alt: #f49068
+$light-bg: #eee
+$white: #fff
+$black: #171414
+$accent: #f47d68
+$info: #ffc3b2
+$link: #e66153
+$grad-angle: 160deg
 
 [v-cloak]
   display: none
+
+.content
+  background-color: $white
+  padding: 25px 35px
+  margin-bottom: 20px
 
 body
   display: flex
   min-height: 100vh
   flex-direction: column
+  background-color: $light-bg
 
   main
     flex: 1 0 auto
@@ -15,11 +30,15 @@ body
     #tab-import
       .input-div
         width: 100%
+        margin-left: 0.75em
       .btn-div
         min-width: 160px
         margin-left: 50px
+        margin-right: 0.75em
       .secondary-description
         margin: 50px 0 30px
+        .card
+          background-color: $info
       .command-div
         pre
           width: 100%
@@ -48,13 +67,44 @@ body
           margin-top: -3px
           input
             margin-bottom: -3px
+      .fixed-action-btn
+        right: 45px
+        bottom: 45px
 
   footer
     .copyright
       margin-top: 8px
 
   .primary
-    background-color: #606b86
+    color: $white
+    background: $primary
+    background: -webkit-linear-gradient($grad-angle, $primary, $primary-alt)
+    background: -o-linear-gradient($grad-angle, $primary, $primary-alt)
+    background: -moz-linear-gradient($grad-angle, $primary, $primary-alt)
+    background: linear-gradient($grad-angle, $primary, $primary-alt)
+
+  .accent
+    color: $white !important
+    background-color: $accent !important
+    &.btn:hover,
+    &a:hover
+      background-color: lighten($accent, 5%) !important
 
   .wickedpicker
     width: 160px
+
+.input-field input:focus
+  border-bottom: 1px solid $accent !important
+  box-shadow: 0 1px 0 0 $accent !important
+
+.input-field label
+  color: $accent !important
+
+.input-field input:focus + label
+  color: $accent !important
+
+.link,
+.link:hover,
+.link:active,
+.link:visited
+  color: $link

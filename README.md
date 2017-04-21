@@ -1,11 +1,9 @@
 # Git History Editor
 Git History Editor is an easy-to-use online tool hosted by Github Pages, intended to help you edit your past commits. 
 
----
 
 ## [<p align="center">git.io/editor</p>](https://git.io/editor)
 
----
 
 ## How it works
 

@@ -64,9 +64,9 @@ body
         input[id$="-time"]
           width: 80px
         .input-field
-          margin-top: -3px
+          margin-top: -10px
           input
-            margin-bottom: -3px
+            margin-bottom: -10px
       .fixed-action-btn
         right: 45px
         bottom: 45px
@@ -103,8 +103,29 @@ body
 .input-field input:focus + label
   color: $accent !important
 
+// Editor links
 .link,
 .link:hover,
 .link:active,
 .link:visited
   color: $link
+
+// Date picker
+.picker__date-display,
+.picker__day--selected,
+.picker__day--selected:hover,
+.picker--focused .picker__day--selected
+  background-color: $accent
+
+.picker__day.picker__day--today,
+.picker__close, .picker__today
+  color: $link
+
+.picker__weekday-display
+  background-color: $link
+
+.picker__nav--prev:hover,
+.picker__nav--next:hover
+  background-color: rgba($accent, 0.3)
+.picker__box
+  border: none

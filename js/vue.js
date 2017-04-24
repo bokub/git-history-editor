@@ -13,7 +13,7 @@ var v = new Vue({
     methods: {
         importCommits: function () {
             var decoded = b64DecodeUnicode(this.b64log.replace(/\s+/g, ''));
-            if (decoded === 'INVALID_BASE64'){
+            if (decoded === 'INVALID_BASE64') {
                 this.importFailure = true;
                 return;
             }
@@ -178,7 +178,7 @@ var v = new Vue({
             var self = this;
             this.$nextTick(function () {
                 $('.timepicker').each(function () {
-                    $(this).wickedpicker( {
+                    $(this).wickedpicker({
                         now: $(this).val(),
                         twentyFour: true,
                         showSeconds: true,
@@ -215,6 +215,14 @@ var v = new Vue({
             });
         },
 
+        loadSampleData: function () {
+            var self = this;
+            var url = 'https://gist.githubusercontent.com/bokub/16c8e01d23153caf22ff9c5b81da9c5d/raw';
+            $.get(url, function (data) {
+                self.b64log = data;
+            });
+        },
+
         log: function (x) {
             console.log(x);
         }
@@ -245,8 +253,8 @@ function b64DecodeUnicode(str) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
     }
-    catch(e) {
-        return('INVALID_BASE64')
+    catch (e) {
+        return ('INVALID_BASE64')
     }
 }
 

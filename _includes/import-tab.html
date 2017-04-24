@@ -13,8 +13,13 @@
         <div class="col s12 instructions">
             <p>
                 To import your commit history, execute the following command in your project directory, then paste
-                the result below:
+                the result below.
+                <br>
+                Just want to give it a try? No problem,
+                <a href="javascript:void(0)" v-on:click="loadSampleData" class="link">click here</a>
+                to load sample data
             </p>
+
             <div class="valign-wrapper command-div">
                 <a class="waves-effect waves-light btn clipboard accent" data-clipboard-target="#git-log-code">
                     <i class="material-icons left">content_copy</i>
@@ -29,7 +34,7 @@
 
         <div class="input-field input-div valign">
             <input id="input" type="text" v-model="b64log" v-bind:class="{invalid: importFailure}">
-            <label for="input">Paste here</label>
+            <label for="input" v-bind:class="{active: b64log.length > 0}">Paste here</label>
         </div>
 
         <div class="btn-div valign">

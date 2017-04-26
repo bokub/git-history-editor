@@ -99,8 +99,8 @@
                         </a>
                     </div>
                     <div v-else class="input-field">
-                        <textarea v-bind:id="commit.sha + '-message'" v-model="commit.message" class="materialize-textarea" onmousemove="autoFocus(this)"></textarea>
-                        <label v-bind:for="commit.sha + '-message'">Textarea</label>
+                        <textarea v-bind:id="commit.sha + '-message'" v-model="commit.message" class="materialize-textarea no-transition"
+                                  onmousemove="initTextarea(this)"></textarea>
                     </div>
                 </td>
             </tr>

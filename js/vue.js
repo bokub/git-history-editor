@@ -154,7 +154,6 @@ var v = new Vue({
 
             this.output = script;
             this.$nextTick(function () {
-                console.log(this.output);
                 Prism.highlightElement($('#output')[0]);
             })
         },
@@ -319,6 +318,15 @@ function autoFocus(el) {
     var $el = $(el);
     $el.removeAttr('onmousemove');
     $el.focus();
+}
+
+function initTextarea(el) {
+    var $el = $(el);
+    $el.trigger('autoresize');
+    setTimeout(function () {
+        $el.removeClass('no-transition');
+    }, 350);
+    autoFocus(el);
 }
 
 function escape(str) {

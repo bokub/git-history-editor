@@ -58,15 +58,19 @@ body
         .commit-time
           min-width: 90px
           max-width: 90px
-
         input[id$="-date"]
           width: 100px
         input[id$="-time"]
           width: 80px
         .input-field
           margin-top: -10px
-          input
+          input,
+          textarea
             margin-bottom: -10px
+          textarea
+            font-size: 1em
+            padding: .8rem 0 0.8rem 0
+            min-height: 0
       .fixed-action-btn
         right: 45px
         bottom: 45px
@@ -80,6 +84,9 @@ body
     font-weight: 700
     letter-spacing: -0.02em
     margin-bottom: 0
+
+  .no-transition
+    transition: none
 
   .primary
     color: $white
@@ -100,7 +107,8 @@ body
     width: 160px
 
 // Input fields
-.input-field input:focus
+.input-field input:focus,
+.input-field textarea:focus
   border-bottom: 1px solid $accent !important
   box-shadow: 0 1px 0 0 $accent !important
 

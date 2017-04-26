@@ -43,7 +43,8 @@ var v = new Vue({
                         'email': false,
                         'timestamp': false,
                         'date': false,
-                        'time': false
+                        'time': false,
+                        'message': false
                     }
                 };
                 this.originalCommits.push(clone(commit));
@@ -80,56 +81,79 @@ var v = new Vue({
 
         exportScript: function () {
             var br = '\n';
-            var commitsToChange = 0;
-            console.log('exporting');
+            var envChanges = '';
+            var msgChanges = '';
 
-            var script = ''
-                // + '#!/usr/bin/env bash' + br
-                + 'git filter-branch --env-filter \\' + br
-                + '"';
-
+            // Generate the --env-filter command and the --msg-filter command
             for (var c in this.currentCommits) {
                 if (this.currentCommits.hasOwnProperty(c)) {
                     var diff = computeDiff(this.currentCommits[c], this.originalCommits[c]);
-                    if (diff.identical) {
+                    if (diff.identicalEnv && diff.identicalMsg) {
                         continue;
                     }
                     var cc = this.currentCommits[c];
 
-                    if (commitsToChange > 0) {
-                        script += br + 'el';
-                    }
-                    script = script
-                        + "if test \\$GIT_COMMIT = '" + cc.sha + "'" + br
-                        + "then" + br;
+                    if (!diff.identicalEnv) {
+                        if (envChanges.length > 0) {
+                            envChanges += 'el';
+                        }
+                        envChanges = envChanges
+                            + "if test \\$GIT_COMMIT = '" + cc.sha + "'" + br
+                            + "then" + br;
 
-                    if (diff.name !== null) {
-                        script = script
-                            + "    export GIT_AUTHOR_NAME='" + cc.name + "'" + br
-                            + "    export GIT_COMMITTER_NAME='" + cc.name + "'" + br
+                        if (diff.name !== null) {
+                            envChanges = envChanges
+                                + "    export GIT_AUTHOR_NAME='" + escape(cc.name) + "'" + br
+                                + "    export GIT_COMMITTER_NAME='" + escape(cc.name) + "'" + br
+                        }
+                        if (diff.email !== null) {
+                            envChanges = envChanges
+                                + "    export GIT_AUTHOR_EMAIL='" + cc.email + "'" + br
+                                + "    export GIT_COMMITTER_EMAIL='" + cc.email + "'" + br;
+                        }
+                        if (diff.timestamp !== null) {
+                            envChanges = envChanges
+                                + "    export GIT_AUTHOR_DATE='" + cc.timestamp + "'" + br
+                                + "    export GIT_COMMITTER_DATE='" + cc.timestamp + "'" + br
+                        }
                     }
-                    if (diff.email !== null) {
-                        script = script
-                            + "    export GIT_AUTHOR_EMAIL='" + cc.email + "'" + br
-                            + "    export GIT_COMMITTER_EMAIL='" + cc.email + "'" + br;
+
+                    if (!diff.identicalMsg) {
+                        if (msgChanges.length > 0) {
+                            msgChanges += 'el';
+                        }
+                        msgChanges = msgChanges
+                            + "if test \\$GIT_COMMIT = '" + cc.sha + "'" + br
+                            + "then" + br;
+
+                        if (diff.message !== null) {
+                            msgChanges = msgChanges
+                                + "    echo '" + escape(cc.message) + "'" + br
+                        }
                     }
-                    if (diff.timestamp !== null) {
-                        script = script
-                            + "    export GIT_AUTHOR_DATE='" + cc.timestamp + "'" + br
-                            + "    export GIT_COMMITTER_DATE='" + cc.timestamp + "'" + br
-                    }
-                    commitsToChange++;
                 }
             }
-            script += 'fi" && rm -fr "$(git rev-parse --git-dir)/refs/original/"' + br;
 
-            if (commitsToChange === 0) {
+            if (envChanges.length + msgChanges.length === 0) {
                 this.output = '';
                 return;
             }
+
+            // Generate the whole script
+            var script = 'git filter-branch ';
+            if (envChanges.length > 0) {
+                script += '--env-filter \\' + br
+                    + '"' + envChanges + 'fi" ';
+            }
+            if (msgChanges.length > 0) {
+                script += '--msg-filter \\' + br
+                    + '"' + msgChanges + 'else cat' + br + 'fi" ';
+            }
+
+            script += '&& rm -fr "$(git rev-parse --git-dir)/refs/original/"' + br;
+
             this.output = script;
             this.$nextTick(function () {
-                console.log(this.output);
                 Prism.highlightElement($('#output')[0]);
             })
         },
@@ -260,10 +284,12 @@ function b64DecodeUnicode(str) {
 
 function computeDiff(current, original) {
     var diff = {
-        identical: true,
+        identicalEnv: true,
+        identicalMsg: true,
         name: null,
         email: null,
-        timestamp: null
+        timestamp: null,
+        message: null
     };
 
     // Compute new timestamp
@@ -271,15 +297,19 @@ function computeDiff(current, original) {
 
     if (current.name !== original.name) {
         diff.name = current.name;
-        diff.identical = false;
+        diff.identicalEnv = false;
     }
     if (current.email !== original.email) {
         diff.email = current.email;
-        diff.identical = false;
+        diff.identicalEnv = false;
     }
     if (current.timestamp !== original.timestamp) {
         diff.timestamp = current.timestamp;
-        diff.identical = false;
+        diff.identicalEnv = false;
+    }
+    if (current.message !== original.message) {
+        diff.message = current.message;
+        diff.identicalMsg = false;
     }
     return diff;
 }
@@ -288,4 +318,17 @@ function autoFocus(el) {
     var $el = $(el);
     $el.removeAttr('onmousemove');
     $el.focus();
+}
+
+function initTextarea(el) {
+    var $el = $(el);
+    $el.trigger('autoresize');
+    setTimeout(function () {
+        $el.removeClass('no-transition');
+    }, 350);
+    autoFocus(el);
+}
+
+function escape(str) {
+    return str.replace(/'/g, "'\\\''").replace(/"/g, '\\\"').replace(/[\r\n]/g, '\\n');
 }

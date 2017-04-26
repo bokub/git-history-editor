@@ -92,7 +92,17 @@
                 </td>
 
                 <!--Message-->
-                <td class="commit-message grey-text text-darken-2">[[ commit.message ]]</td>
+                <td class="commit-message">
+                    <div v-if="commit.edited.message === false">
+                        <a v-on:click="commit.edited.message=true" href="javascript:void(0)" class="link">
+                            [[ commit.message ]]
+                        </a>
+                    </div>
+                    <div v-else class="input-field">
+                        <textarea v-bind:id="commit.sha + '-message'" v-model="commit.message" class="materialize-textarea" onmousemove="autoFocus(this)"></textarea>
+                        <label v-bind:for="commit.sha + '-message'">Textarea</label>
+                    </div>
+                </td>
             </tr>
             </tbody>
         </table>

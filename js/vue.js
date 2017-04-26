@@ -11,13 +11,19 @@ var v = new Vue({
         output: ''
     },
     methods: {
+
+        /**
+         * Decode a b64 string and create a commit list from it
+         */
         importCommits: function () {
+            // Decode input
             var decoded = b64DecodeUnicode(this.b64log.replace(/\s+/g, ''));
             if (decoded === 'INVALID_BASE64') {
                 this.importFailure = true;
                 return;
             }
 
+            // Split into multiple lines
             var commitsStr = decoded.split(/\n/);
             this.originalCommits = [];
             this.currentCommits = [];
@@ -29,6 +35,7 @@ var v = new Vue({
                     return;
                 }
 
+                // Create a commit from the current line
                 var commit = {
                     sha: splitted[0],
                     name: splitted[1],
@@ -36,9 +43,8 @@ var v = new Vue({
                     timestamp: splitted[3],
                     date: moment.unix(splitted[3]).format('YYYY-MM-DD'),
                     time: moment.unix(splitted[3]).format('HH : mm : ss'),
-                    datetime: moment.unix(splitted[3]).format('YYYY-MM-DD hh:mm:ss'),
                     message: splitted[4],
-                    edited: {
+                    edited: { // Used by the UI to know if a link has been clicked or not
                         'name': false,
                         'email': false,
                         'timestamp': false,
@@ -57,12 +63,21 @@ var v = new Vue({
             }
         },
 
+        /**
+         * Remove every modifications made on a single commit
+         * @param i - commit number
+         */
         resetCommit: function (i) {
             var t = this.currentCommits.slice();
             t[i] = clone(this.originalCommits[i]);
             this.currentCommits = t;
         },
 
+        /**
+         * Edit the time of a commit
+         * @param i - commit number
+         * @param newDate - new value of the date
+         */
         setDate: function (i, newDate) {
             if (newDate !== '' && newDate !== null && typeof newDate !== 'undefined') {
                 this.currentCommits[i].date = newDate;
@@ -71,6 +86,11 @@ var v = new Vue({
             this.currentCommits[i].date = this.originalCommits[i].date;
         },
 
+        /**
+         * Edit the time of a commit
+         * @param i - commit number
+         * @param newTime - new value of the time
+         */
         setTime: function (i, newTime) {
             if (newTime !== '' && newTime !== null && typeof newTime !== 'undefined') {
                 this.currentCommits[i].time = newTime;
@@ -79,6 +99,9 @@ var v = new Vue({
             this.currentCommits[i].time = this.originalCommits[i].time;
         },
 
+        /**
+         * Compute bash script to display on export tab
+         */
         exportScript: function () {
             var br = '\n';
             var envChanges = '';
@@ -159,6 +182,11 @@ var v = new Vue({
         },
 
 
+        /**
+         * Switch to another tab
+         * tabs.tabs is called two times because the animation is bugged
+         * @param step
+         */
         changeStep: function (step) {
             var tabs = $('ul.tabs');
             switch (step) {
@@ -186,8 +214,10 @@ var v = new Vue({
             }
         },
 
+        /**
+         * Initialize every datepicker on screen
+         */
         initDatePickers: function () {
-            var self = this;
             this.$nextTick(function () {
                 $('.datepicker').pickadate({
                     format: 'yyyy-mm-dd',
@@ -198,8 +228,10 @@ var v = new Vue({
             });
         },
 
+        /**
+         * Initialize every timepicker on screen
+         */
         initTimePickers: function () {
-            var self = this;
             this.$nextTick(function () {
                 $('.timepicker').each(function () {
                     $(this).wickedpicker({
@@ -212,6 +244,9 @@ var v = new Vue({
             });
         },
 
+        /**
+         * Initialize tab behavior
+         */
         initTabs: function () {
             var self = this;
             $(document).ready(function () {
@@ -219,6 +254,7 @@ var v = new Vue({
                     onShow: function (e) {
                         switch (e.attr('id')) {
                             case 'tab-export':
+                                // When export tab is showed, recompute content
                                 self.exportScript();
                                 break;
                         }
@@ -228,6 +264,9 @@ var v = new Vue({
 
         },
 
+        /**
+         * Initialize clipboard.js
+         */
         initClipboard: function () {
             var clipboard = new Clipboard('.clipboard', {});
 
@@ -239,6 +278,9 @@ var v = new Vue({
             });
         },
 
+        /**
+         * Get a sample b64 string from a Gist
+         */
         loadSampleData: function () {
             var self = this;
             var url = 'https://gist.githubusercontent.com/bokub/16c8e01d23153caf22ff9c5b81da9c5d/raw';
@@ -252,12 +294,20 @@ var v = new Vue({
         }
     },
 
+    /**
+     * Called at page creation
+     */
     created: function () {
         this.initTabs();
         this.initClipboard();
     }
 });
 
+/**
+ * Clone an object and its properties
+ * @param obj
+ * @returns {*}
+ */
 function clone(obj) {
     if (obj === null || typeof obj !== 'object') return obj;
     var copy = obj.constructor();
@@ -271,6 +321,11 @@ function clone(obj) {
     return copy;
 }
 
+/**
+ * Decode a base64 string, with unicode support
+ * @param str
+ * @returns {*}
+ */
 function b64DecodeUnicode(str) {
     try {
         return decodeURIComponent(Array.prototype.map.call(atob(str), function (c) {
@@ -282,10 +337,16 @@ function b64DecodeUnicode(str) {
     }
 }
 
+/**
+ * Check for differences between an edited commit and the original one
+ * @param current
+ * @param original
+ * @returns {{identicalEnv: boolean, identicalMsg: boolean, name: null, email: null, timestamp: null, message: null}}
+ */
 function computeDiff(current, original) {
     var diff = {
-        identicalEnv: true,
-        identicalMsg: true,
+        identicalEnv: true, // set to false if name, email, date or time changes
+        identicalMsg: true, // set to false if message changes
         name: null,
         email: null,
         timestamp: null,
@@ -314,21 +375,37 @@ function computeDiff(current, original) {
     return diff;
 }
 
+/**
+ * Focus on the input, and remove the possibility to be called again
+ * @param el
+ */
 function autoFocus(el) {
     var $el = $(el);
     $el.removeAttr('onmousemove');
     $el.focus();
 }
 
+/**
+ * Textarea behavior when just clicked
+ * @param el
+ */
 function initTextarea(el) {
     var $el = $(el);
+    // Resize the textarea
     $el.trigger('autoresize');
     setTimeout(function () {
+        // Allow smooth transitions once resized
         $el.removeClass('no-transition');
-    }, 350);
+    }, 50);
+    // Focus on textarea
     autoFocus(el);
 }
 
+/**
+ * Convert special chars to include into bash script
+ * @param str
+ * @returns {string}
+ */
 function escape(str) {
     return str.replace(/'/g, "'\\\''").replace(/"/g, '\\\"').replace(/[\r\n]/g, '\\n');
 }

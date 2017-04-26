@@ -50,5 +50,5 @@ This script uses the `git filter-branch` command, which is the less painful way 
 - [x] Atomic editing mode
 - [x] Edit author name / email
 - [x] Edit commit time / date
-- [ ] Edit commit message
+- [x] Edit commit message
 - [ ] Bulk editing mode

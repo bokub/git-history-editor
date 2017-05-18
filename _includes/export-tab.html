@@ -25,6 +25,10 @@
         </div>
         <div class="col s12">
             <br>
+            <a class="waves-effect waves-light btn accent" v-on:click="changeStep('edit')">
+                <i class="material-icons left">arrow_back</i>
+                Continue editing
+            </a>
             <a class="waves-effect waves-light btn clipboard accent" v-bind:data-clipboard-text="output">
                 <i class="material-icons left">content_copy</i>
                 Copy to clipboard

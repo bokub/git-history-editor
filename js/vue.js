@@ -178,7 +178,7 @@ var v = new Vue({
             this.output = script;
             this.$nextTick(function () {
                 Prism.highlightElement($('#output')[0]);
-            })
+            });
         },
 
 
@@ -212,36 +212,6 @@ var v = new Vue({
                     });
                     break;
             }
-        },
-
-        /**
-         * Initialize every datepicker on screen
-         */
-        initDatePickers: function () {
-            this.$nextTick(function () {
-                $('.datepicker').pickadate({
-                    format: 'yyyy-mm-dd',
-                    closeOnSelect: true,
-                    clear: false,
-                    firstDay: 1
-                });
-            });
-        },
-
-        /**
-         * Initialize every timepicker on screen
-         */
-        initTimePickers: function () {
-            this.$nextTick(function () {
-                $('.timepicker').each(function () {
-                    $(this).wickedpicker({
-                        now: $(this).val(),
-                        twentyFour: true,
-                        showSeconds: true,
-                        title: ''
-                    });
-                });
-            });
         },
 
         /**
@@ -286,6 +256,22 @@ var v = new Vue({
             var url = 'https://gist.githubusercontent.com/bokub/16c8e01d23153caf22ff9c5b81da9c5d/raw';
             $.get(url, function (data) {
                 self.b64log = data;
+            });
+        },
+
+        focus: function (sha, field) {
+            this.$nextTick(function () {
+                var el = $('#' + sha).find('.commit-' + field + '> .input-field').find('input, textarea');
+                if (field === 'date') {
+                    initDatePicker(el);
+                } else if (field === 'time') {
+                    initTimePicker(el);
+                } else if (field === 'message') {
+                    initTextarea(el);
+                } else {
+                    el.focus();
+                }
+
             });
         },
 
@@ -376,29 +362,53 @@ function computeDiff(current, original) {
 }
 
 /**
- * Focus on the input, and remove the possibility to be called again
- * @param el
- */
-function autoFocus(el) {
-    var $el = $(el);
-    $el.removeAttr('onmousemove');
-    $el.focus();
-}
-
-/**
  * Textarea behavior when just clicked
  * @param el
  */
 function initTextarea(el) {
-    var $el = $(el);
     // Resize the textarea
-    $el.trigger('autoresize');
+    el.trigger('autoresize');
     setTimeout(function () {
         // Allow smooth transitions once resized
-        $el.removeClass('no-transition');
+        el.removeClass('no-transition');
     }, 50);
-    // Focus on textarea
-    autoFocus(el);
+    el.focus();
+}
+
+/**
+ * Init the date picker when a date is clicked
+ * @param el
+ */
+function initDatePicker(el) {
+    Vue.nextTick(function () {
+        el.pickadate({
+            format: 'yyyy-mm-dd',
+            closeOnSelect: true,
+            clear: false,
+            firstDay: 1
+        });
+        setTimeout(function () {
+            el.focus();
+        }, 50);
+    });
+}
+
+/**
+ * Init the time picker when a time is clicked
+ * @param el
+ */
+function initTimePicker(el) {
+    Vue.nextTick(function () {
+        el.wickedpicker({
+            now: el.val(),
+            twentyFour: true,
+            showSeconds: true,
+            title: ''
+        });
+        setTimeout(function () {
+            el.focus();
+        }, 50);
+    });
 }
 
 /**

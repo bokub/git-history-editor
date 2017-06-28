@@ -1,16 +1,22 @@
 <div id="tab-import" class="container content z-depth-1">
     <div class="row description main-description">
         <div class="section col s12">
+            <h2>What is this?</h2>
             <p>
                 <b>Git History Editor</b> is a simple tool intended to help you edit your git history.
-                Just import the result of your <code>git log</code> to get started.
+                Just import the result of your <code> git log </code> to get started.
                 <br>
-                You'll be able to edit author names and emails, commit messages, and even the time and date of your commits.
+                You'll be able to edit author names and emails, commit messages, and even the time and date of your
+                commits.
             </p>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col s12 instructions">
+            <h2>Why ?</h2>
+            <p> There are multiple reasons why you'd want to edit your commits:</p>
+            <ul>
+                <li>If you committed with the wrong name or email</li>
+                <li>I you want to edit your old and crappy commit messages</li>
+                <li>To make people think that you work / don't work at a specific time of the day</li>
+            </ul>
+            <h2>How ?</h2>
             <p>
                 To import your commit history, execute the following command in your project directory, then paste
                 the result below.
@@ -19,14 +25,17 @@
                 <a href="javascript:void(0)" v-on:click="loadSampleData" class="link">click here</a>
                 to load sample data
             </p>
-
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12 instructions">
             <div class="valign-wrapper command-div">
                 <a class="waves-effect waves-light btn clipboard accent" data-clipboard-target="#git-log-code">
                     <i class="material-icons left">content_copy</i>
                     Copy
                 </a>
                 <pre class="valign"><code id="git-log-code"
-                        class="language-bash">git log -1000 --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64</code></pre>
+                                          class="language-bash">git log -1000 --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64</code></pre>
             </div>
         </div>
     </div>

@@ -36,6 +36,12 @@
                 </a>
                 <pre class="valign"><code id="git-log-code"
                                           class="language-bash">git log -1000 --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64</code></pre>
+                <a class="waves-effect waves-light btn clipboard accent" data-clipboard-target="#git-log-code">
+                    <i class="material-icons left">content_copy</i>
+                    Copy
+                </a>
+                <pre class="valign"><code id="git-log-code"
+                                          class="language-powershell">[Convert]::ToBase64String(( [char[]]$(( git log -1000 --pretty=format:"%H*#%an*#%ae*#%at*#%s" ) -join "`n" )), [System.Base64FormattingOptions]::InsertLineBreaks )</code></pre>
             </div>
         </div>
     </div>

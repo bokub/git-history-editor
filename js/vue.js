@@ -417,5 +417,5 @@ function initTimePicker(el) {
  * @returns {string}
  */
 function escape(str) {
-    return str.replace(/'/g, "'\\\''").replace(/"/g, '\\\"').replace(/[\r\n]/g, '\\n');
+    return str.replace(/'/g, "'\\\''").replace(/(["`])/g, '\\\$1').replace(/[\r\n]/g, '\\n');
 }

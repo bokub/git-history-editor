@@ -22,11 +22,11 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="(commit, i) in currentCommits" v-bind:id="commit.sha">
+            <tr v-for="(commit, i) in currentCommits" :id="commit.sha">
 
                 <!--Reset-->
                 <td class="grey-text text-darken-2">
-                    <a href="javascript:void(0)" v-on:click="resetCommit(i)" class="black-text">
+                    <a href="javascript:void(0)" @click="resetCommit(i)" class="black-text">
                         <i class="tiny material-icons">replay</i>
                     </a>
                 </td>
@@ -37,7 +37,7 @@
                 <!--Name-->
                 <td class="commit-name">
                     <div v-if="commit.edited.name === false">
-                        <a v-on:click="commit.edited.name=true; focus(commit.sha, 'name')" href="javascript:void(0)"
+                        <a @click="commit.edited.name=true; focus(commit.sha, 'name')" href="javascript:void(0)"
                            class="link">
                             [[ commit.name ]]
                         </a>
@@ -50,7 +50,7 @@
                 <!--Email-->
                 <td class="commit-email">
                     <div v-if="commit.edited.email === false">
-                        <a v-on:click="commit.edited.email=true; focus(commit.sha, 'email')" href="javascript:void(0)"
+                        <a @click="commit.edited.email=true; focus(commit.sha, 'email')" href="javascript:void(0)"
                            class="link">
                             [[ commit.email ]]
                         </a>
@@ -63,13 +63,13 @@
                 <!--Date-->
                 <td class="commit-date">
                     <div v-if="commit.edited.date === false">
-                        <a v-on:click="commit.edited.date=true; focus(commit.sha, 'date')" href="javascript:void(0)"
+                        <a @click="commit.edited.date=true; focus(commit.sha, 'date')" href="javascript:void(0)"
                            class="link">
                             [[ commit.date ]]
                         </a>
                     </div>
                     <div v-else class="input-field">
-                        <input v-model="commit.date" v-bind:data-commit-number="i" type="date"
+                        <input v-model="commit.date" :data-commit-number="i" type="date"
                                onchange="v.setDate($(this).attr('data-commit-number'), $(this).val())"
                                class="datepicker">
                     </div>
@@ -78,13 +78,13 @@
                 <!--Time-->
                 <td class="commit-time">
                     <div v-if="commit.edited.time === false">
-                        <a v-on:click="commit.edited.time=true; focus(commit.sha, 'time')" href="javascript:void(0)"
+                        <a @click="commit.edited.time=true; focus(commit.sha, 'time')" href="javascript:void(0)"
                            class="link">
                             [[ commit.time ]]
                         </a>
                     </div>
                     <div v-else class="input-field">
-                        <input v-model="commit.time" v-bind:data-commit-number="i"
+                        <input v-model="commit.time" :data-commit-number="i"
                                onchange="v.setTime($(this).attr('data-commit-number'), $(this).val())" name="timepicker"
                                class="timepicker">
                     </div>
@@ -94,7 +94,7 @@
                 <!--Message-->
                 <td class="commit-message">
                     <div v-if="commit.edited.message === false">
-                        <a v-on:click="commit.edited.message=true; focus(commit.sha, 'message')"
+                        <a @click="commit.edited.message=true; focus(commit.sha, 'message')"
                            href="javascript:void(0)" class="link">
                             [[ commit.message ]]
                         </a>
@@ -108,7 +108,7 @@
     </div>
 
     <div class="fixed-action-btn">
-        <a class="btn-floating btn-large accent" href="javascript:void(0)" v-on:click="changeStep('export')">
+        <a class="btn-floating btn-large accent" href="javascript:void(0)" @click="changeStep('export')">
             <i class="large material-icons">done</i>
         </a>
     </div>

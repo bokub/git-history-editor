@@ -22,7 +22,7 @@
                 the result below.
                 <br>
                 Just want to give it a try? No problem,
-                <a href="javascript:void(0)" v-on:click="loadSampleData" class="link">click here</a>
+                <a href="javascript:void(0)" @click="loadSampleData" class="link">click here</a>
                 to load sample data
             </p>
         </div>
@@ -42,12 +42,12 @@
     <div class="row valign-wrapper">
 
         <div class="input-field input-div valign">
-            <input id="input" type="text" v-model="b64log" v-bind:class="{invalid: importFailure}">
-            <label for="input" v-bind:class="{active: b64log.length > 0}">Paste here</label>
+            <input id="input" type="text" v-model="b64log" :class="{invalid: importFailure}">
+            <label for="input" :class="{active: b64log.length > 0}">Paste here</label>
         </div>
 
         <div class="btn-div valign">
-            <a class="waves-effect waves-light btn import-btn accent" v-on:click="importCommits">
+            <a class="waves-effect waves-light btn import-btn accent" @click="importCommits">
                 <i class="material-icons left">file_download</i>
                 Import
             </a>

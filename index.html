@@ -43,8 +43,8 @@
                         <div class="col s12">
                             <ul class="tabs tabs-transparent">
                                 <li class="tab"><a href="#tab-import">Import</a></li>
-                                <li class="tab" v-bind:class="{ disabled: step < 2 }"><a href="#tab-edit">Edit</a></li>
-                                <li class="tab" v-bind:class="{ disabled: step < 2 }"><a href="#tab-export">Export</a>
+                                <li class="tab" :class="{ disabled: step < 2 }"><a href="#tab-edit">Edit</a></li>
+                                <li class="tab" :class="{ disabled: step < 2 }"><a href="#tab-export">Export</a>
                                 </li>
                             </ul>
                         </div>

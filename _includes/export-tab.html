@@ -9,7 +9,7 @@
         </div>
         <div class="col s12">
             <br>
-            <a class="waves-effect waves-light btn accent" v-on:click="changeStep('edit')">
+            <a class="waves-effect waves-light btn accent" @click="changeStep('edit')">
                 <i class="material-icons left">arrow_back</i>
                 Continue editing
             </a>
@@ -25,11 +25,11 @@
         </div>
         <div class="col s12">
             <br>
-            <a class="waves-effect waves-light btn accent" v-on:click="changeStep('edit')">
+            <a class="waves-effect waves-light btn accent" @click="changeStep('edit')">
                 <i class="material-icons left">arrow_back</i>
                 Continue editing
             </a>
-            <a class="waves-effect waves-light btn clipboard accent" v-bind:data-clipboard-text="output">
+            <a class="waves-effect waves-light btn clipboard accent" :data-clipboard-text="output">
                 <i class="material-icons left">content_copy</i>
                 Copy to clipboard
             </a>

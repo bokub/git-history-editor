@@ -7,6 +7,9 @@ var v = new Vue({
         importFailure: false,
         originalCommits: [],
         currentCommits: [],
+        bulks: [],
+        authors: [],
+        emails: [],
         step: 1,
         output: ''
     },
@@ -60,6 +63,8 @@ var v = new Vue({
             if (this.currentCommits.length > 0) {
                 this.importFailure = false;
                 this.changeStep('edit');
+                this.extractAuthors();
+                this.addBulk();
             }
         },
 
@@ -79,11 +84,7 @@ var v = new Vue({
          * @param newDate - new value of the date
          */
         setDate: function (i, newDate) {
-            if (newDate !== '' && newDate !== null && typeof newDate !== 'undefined') {
-                this.currentCommits[i].date = newDate;
-                return;
-            }
-            this.currentCommits[i].date = this.originalCommits[i].date;
+            this.currentCommits[i].date = newDate ? newDate : this.originalCommits[i].date;
         },
 
         /**
@@ -92,11 +93,17 @@ var v = new Vue({
          * @param newTime - new value of the time
          */
         setTime: function (i, newTime) {
-            if (newTime !== '' && newTime !== null && typeof newTime !== 'undefined') {
-                this.currentCommits[i].time = newTime;
-                return;
-            }
-            this.currentCommits[i].time = this.originalCommits[i].time;
+            this.currentCommits[i].time = newTime ? newTime : this.originalCommits[i].time;
+        },
+
+        /**
+         * Edit the 'search' part of a bulk edit line
+         * @param i
+         * @param newSearch
+         */
+        setSearch: function (i, newSearch) {
+            this.bulks[i].search = newSearch ? newSearch : '';
+            this.updateBulkLines();
         },
 
         /**
@@ -181,6 +188,63 @@ var v = new Vue({
             });
         },
 
+        /**
+         * Add an empty bulk edit line
+         */
+        addBulk: function () {
+            this.bulks.push({
+                active: true,
+                emailToggle: false,
+                nameOptions: [],
+                emailOptions: [],
+                search: '',
+                replace: ''
+            });
+            this.updateBulkLines();
+        },
+
+        /**
+         * Remove an element from the bulk edit list.
+         * Actually just hidden (active = false) to avoid problems with the jQuery components
+         * @param index
+         */
+        removeBulk: function (index) {
+            this.bulks[index].search = '';
+            this.bulks[index].replace = '';
+
+            var active = 0;
+            for (var i = 0; i < this.bulks.length; i++) {
+                active += this.bulks[i].active ? 1 : 0;
+            }
+            this.bulks[index].active = active <= 1;
+            this.updateBulkLines();
+        },
+
+        /**
+         * Ensure that the user cannot choose the same option in two different bulk edit lines.
+         * Also, update the select component of each line
+         */
+        updateBulkLines: function () {
+            var self = this;
+
+            var taken = {};
+            for (var i = 0; i < this.bulks.length; i++) {
+                taken[this.bulks[i].search] = i;
+            }
+
+            for (var j = 0; j < this.bulks.length; j++) {
+                this.bulks[j].nameOptions = arrayDiff(this.authors, Object.keys(taken), this.bulks[j].search);
+                this.bulks[j].emailOptions = arrayDiff(this.emails, Object.keys(taken), this.bulks[j].search);
+            }
+
+            this.$nextTick(function () {
+                for (var k = 0; k < self.bulks.length; k++) {
+                    var $select = $('#bulk-search-' + k);
+                    $select.val(self.bulks[k].search);
+                    $select.material_select();
+                }
+            });
+        },
 
         /**
          * Switch to another tab
@@ -212,6 +276,29 @@ var v = new Vue({
                     });
                     break;
             }
+            this.$nextTick(function () {
+                window.scrollTo(0, 0);
+            });
+        },
+
+        /**
+         * Extract a list of author names and emails, sorted by number of commits.
+         */
+        extractAuthors: function () {
+            var authorMap = {};
+            var emailMap = {};
+            for (var i = 0; i < this.originalCommits.length; i++) {
+                var c = this.originalCommits[i];
+                authorMap[c.name] = authorMap[c.name] ? authorMap[c.name] + 1 : 1;
+                emailMap[c.email] = emailMap[c.email] ? emailMap[c.email] + 1 : 1;
+            }
+
+            this.authors = Object.keys(authorMap).sort(function (a, b) {
+                return authorMap[b] - authorMap[a];
+            });
+            this.emails = Object.keys(emailMap).sort(function (a, b) {
+                return emailMap[b] - emailMap[a];
+            });
         },
 
         /**
@@ -418,4 +505,17 @@ function initTimePicker(el) {
  */
 function escape(str) {
     return str.replace(/'/g, "'\\\''").replace(/(["`])/g, '\\\$1').replace(/[\r\n]/g, '\\n');
+}
+
+/**
+ * Return the diff of two arrays, with an exception that should be kept.
+ * @param originalArray
+ * @param newArray
+ * @param exception
+ * @returns Array
+ */
+function arrayDiff(originalArray, newArray, exception) {
+    return originalArray.filter(function (i) {
+        return i === exception || newArray.indexOf(i) < 0;
+    });
 }

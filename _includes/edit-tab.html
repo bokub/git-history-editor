@@ -53,7 +53,9 @@
 
                 <!--Replace-->
                 <div class="input-field col s4">
-                    <input :id="'bulk-replace-' + index" v-model="bulk.replace">
+                    <input :id="'bulk-replace-' + index" :value="bulk.replace" :data-index="index"
+                           onkeyup="v.setReplace($(this).attr('data-index'), $(this).val())"
+                           onchange="v.setReplace($(this).attr('data-index'), $(this).val())">
                     <label :for="'bulk-replace-' + index" :class="{active: bulk.replace != ''}">Replace with</label>
                 </div>
             </div>
@@ -105,7 +107,7 @@
                         <div v-if="commit.edited.name === false">
                             <a @click="commit.edited.name=true; focus(commit.sha, 'name')" href="javascript:void(0)"
                                class="link">
-                                [[ commit.name ]]
+                                [[ bulkReplace.names[commit.name] || commit.name ]]
                             </a>
                         </div>
                         <div v-else class="input-field">
@@ -118,7 +120,7 @@
                         <div v-if="commit.edited.email === false">
                             <a @click="commit.edited.email=true; focus(commit.sha, 'email')" href="javascript:void(0)"
                                class="link">
-                                [[ commit.email ]]
+                                [[ bulkReplace.emails[commit.email] || commit.email ]]
                             </a>
                         </div>
                         <div v-else class="input-field">

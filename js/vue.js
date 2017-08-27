@@ -8,8 +8,14 @@ var v = new Vue({
         originalCommits: [],
         currentCommits: [],
         bulks: [],
-        authors: [],
-        emails: [],
+        authors: {
+            emails: [],
+            names: []
+        },
+        bulkReplace: {
+            emails: {},
+            names: {}
+        },
         step: 1,
         output: ''
     },
@@ -103,6 +109,11 @@ var v = new Vue({
          */
         setSearch: function (i, newSearch) {
             this.bulks[i].search = newSearch ? newSearch : '';
+            this.updateBulkLines();
+        },
+
+        setReplace: function (i, newReplace) {
+            this.bulks[i].replace = newReplace ? newReplace : '';
             this.updateBulkLines();
         },
 
@@ -222,20 +233,36 @@ var v = new Vue({
 
         /**
          * Ensure that the user cannot choose the same option in two different bulk edit lines.
-         * Also, update the select component of each line
+         * Also, update the select component of each line, and reset replacement map for atomic edition
          */
         updateBulkLines: function () {
             var self = this;
+            var search;
+            var emails = {};
+            var names = {};
 
             var taken = {};
             for (var i = 0; i < this.bulks.length; i++) {
+                search = this.bulks[i].search;
+                if(!search){
+                    continue;
+                }
+                if(this.bulks[i].emailToggle){
+                    emails[search] = this.bulks[i].replace
+                } else {
+                    names[search] = this.bulks[i].replace
+                }
                 taken[this.bulks[i].search] = i;
             }
 
             for (var j = 0; j < this.bulks.length; j++) {
-                this.bulks[j].nameOptions = arrayDiff(this.authors, Object.keys(taken), this.bulks[j].search);
-                this.bulks[j].emailOptions = arrayDiff(this.emails, Object.keys(taken), this.bulks[j].search);
+                search = this.bulks[j].search;
+                this.bulks[j].nameOptions = arrayDiff(this.authors.names, Object.keys(names), search);
+                this.bulks[j].emailOptions = arrayDiff(this.authors.emails, Object.keys(emails), search);
             }
+
+            this.$set(this.bulkReplace, 'names', names);
+            this.$set(this.bulkReplace, 'emails', emails);
 
             this.$nextTick(function () {
                 for (var k = 0; k < self.bulks.length; k++) {
@@ -293,10 +320,10 @@ var v = new Vue({
                 emailMap[c.email] = emailMap[c.email] ? emailMap[c.email] + 1 : 1;
             }
 
-            this.authors = Object.keys(authorMap).sort(function (a, b) {
+            this.authors.names = Object.keys(authorMap).sort(function (a, b) {
                 return authorMap[b] - authorMap[a];
             });
-            this.emails = Object.keys(emailMap).sort(function (a, b) {
+            this.authors.emails = Object.keys(emailMap).sort(function (a, b) {
                 return emailMap[b] - emailMap[a];
             });
         },

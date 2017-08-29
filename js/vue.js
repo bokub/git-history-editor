@@ -122,6 +122,7 @@ var v = new Vue({
          */
         exportScript: function () {
             var br = '\n';
+            var bulkChanges = '';
             var envChanges = '';
             var msgChanges = '';
 
@@ -139,23 +140,22 @@ var v = new Vue({
                             envChanges += 'el';
                         }
                         envChanges = envChanges
-                            + "if test \\$GIT_COMMIT = '" + cc.sha + "'" + br
-                            + "then" + br;
+                            + 'if test "$GIT_COMMIT" = "' + cc.sha + '"; then' + br;
 
                         if (diff.name !== null) {
                             envChanges = envChanges
-                                + "    export GIT_AUTHOR_NAME='" + escape(cc.name) + "'" + br
-                                + "    export GIT_COMMITTER_NAME='" + escape(cc.name) + "'" + br
+                                + '    export GIT_AUTHOR_NAME="' + escape(cc.name) + '"' + br
+                                + '    export GIT_COMMITTER_NAME="' + escape(cc.name) + '"' + br
                         }
                         if (diff.email !== null) {
                             envChanges = envChanges
-                                + "    export GIT_AUTHOR_EMAIL='" + cc.email + "'" + br
-                                + "    export GIT_COMMITTER_EMAIL='" + cc.email + "'" + br;
+                                + '    export GIT_AUTHOR_EMAIL="' + cc.email + '"' + br
+                                + '    export GIT_COMMITTER_EMAIL="' + cc.email + '"' + br;
                         }
                         if (diff.timestamp !== null) {
                             envChanges = envChanges
-                                + "    export GIT_AUTHOR_DATE='" + cc.timestamp + "'" + br
-                                + "    export GIT_COMMITTER_DATE='" + cc.timestamp + "'" + br
+                                + '    export GIT_AUTHOR_DATE="' + cc.timestamp + '"' + br
+                                + '    export GIT_COMMITTER_DATE="' + cc.timestamp + '"' + br
                         }
                     }
 
@@ -164,15 +164,35 @@ var v = new Vue({
                             msgChanges += 'el';
                         }
                         msgChanges = msgChanges
-                            + "if test \\$GIT_COMMIT = '" + cc.sha + "'" + br
-                            + "then" + br;
+                            + 'if test "$GIT_COMMIT" = "' + cc.sha + '"; then' + br;
 
                         if (diff.message !== null) {
                             msgChanges = msgChanges
-                                + "    echo '" + escape(cc.message) + "'" + br
+                                + '    echo "' + escape(cc.message) + '"' + br
                         }
                     }
                 }
+            }
+
+            // Add bulk edit instructions
+            for (var n in this.bulkReplace.names) {
+                if (!this.bulkReplace.names.hasOwnProperty(n)) {
+                    continue;
+                }
+                bulkChanges = bulkChanges + (bulkChanges.length > 0 ? 'fi; ' : '')
+                    + 'if test "$GIT_AUTHOR_NAME" = "' + n + '" || test "$GIT_COMMITTER_NAME" = "' + n + '"; then' + br
+                    + '    export GIT_AUTHOR_NAME="' + escape(this.bulkReplace.names[n]) + '"' + br
+                    + '    export GIT_COMMITTER_NAME="' + escape(this.bulkReplace.names[n]) + '"' + br
+            }
+
+            for (var e in this.bulkReplace.emails) {
+                if (!this.bulkReplace.emails.hasOwnProperty(e)) {
+                    continue;
+                }
+                bulkChanges = bulkChanges + (bulkChanges.length > 0 ? 'fi; ' : '')
+                    + 'if test "$GIT_AUTHOR_EMAIL" = "' + e + '" || test "$GIT_COMMITTER_EMAIL" = "' + e + '"; then' + br
+                    + '    export GIT_AUTHOR_EMAIL="' + escape(this.bulkReplace.emails[e]) + '"' + br
+                    + '    export GIT_COMMITTER_EMAIL="' + escape(this.bulkReplace.emails[e]) + '"' + br
             }
 
             if (envChanges.length + msgChanges.length === 0) {
@@ -182,13 +202,14 @@ var v = new Vue({
 
             // Generate the whole script
             var script = 'git filter-branch ';
-            if (envChanges.length > 0) {
+            if (envChanges.length + bulkChanges.length > 0) {
                 script += '--env-filter \\' + br
-                    + '"' + envChanges + 'fi" ';
+                    + "'" + bulkChanges + (bulkChanges.length > 0 ? 'fi; ' : '')
+                    + envChanges + "fi' ";
             }
             if (msgChanges.length > 0) {
                 script += '--msg-filter \\' + br
-                    + '"' + msgChanges + 'else cat' + br + 'fi" ';
+                    + "'" + msgChanges + 'else cat' + br + "fi' ";
             }
 
             script += '&& rm -fr "$(git rev-parse --git-dir)/refs/original/"' + br;
@@ -244,10 +265,10 @@ var v = new Vue({
             var taken = {};
             for (var i = 0; i < this.bulks.length; i++) {
                 search = this.bulks[i].search;
-                if(!search){
+                if (!search) {
                     continue;
                 }
-                if(this.bulks[i].emailToggle){
+                if (this.bulks[i].emailToggle) {
                     emails[search] = this.bulks[i].replace
                 } else {
                     names[search] = this.bulks[i].replace

@@ -7,6 +7,15 @@ var v = new Vue({
         importFailure: false,
         originalCommits: [],
         currentCommits: [],
+        bulks: [],
+        authors: {
+            emails: [],
+            names: []
+        },
+        bulkReplace: {
+            emails: {},
+            names: {}
+        },
         step: 1,
         output: ''
     },
@@ -60,6 +69,8 @@ var v = new Vue({
             if (this.currentCommits.length > 0) {
                 this.importFailure = false;
                 this.changeStep('edit');
+                this.extractAuthors();
+                this.addBulk();
             }
         },
 
@@ -79,11 +90,7 @@ var v = new Vue({
          * @param newDate - new value of the date
          */
         setDate: function (i, newDate) {
-            if (newDate !== '' && newDate !== null && typeof newDate !== 'undefined') {
-                this.currentCommits[i].date = newDate;
-                return;
-            }
-            this.currentCommits[i].date = this.originalCommits[i].date;
+            this.currentCommits[i].date = newDate ? newDate : this.originalCommits[i].date;
         },
 
         /**
@@ -92,11 +99,22 @@ var v = new Vue({
          * @param newTime - new value of the time
          */
         setTime: function (i, newTime) {
-            if (newTime !== '' && newTime !== null && typeof newTime !== 'undefined') {
-                this.currentCommits[i].time = newTime;
-                return;
-            }
-            this.currentCommits[i].time = this.originalCommits[i].time;
+            this.currentCommits[i].time = newTime ? newTime : this.originalCommits[i].time;
+        },
+
+        /**
+         * Edit the 'search' part of a bulk edit line
+         * @param i
+         * @param newSearch
+         */
+        setSearch: function (i, newSearch) {
+            this.bulks[i].search = newSearch ? newSearch : '';
+            this.updateBulkLines();
+        },
+
+        setReplace: function (i, newReplace) {
+            this.bulks[i].replace = newReplace ? newReplace : '';
+            this.updateBulkLines();
         },
 
         /**
@@ -104,6 +122,7 @@ var v = new Vue({
          */
         exportScript: function () {
             var br = '\n';
+            var bulkChanges = '';
             var envChanges = '';
             var msgChanges = '';
 
@@ -121,23 +140,22 @@ var v = new Vue({
                             envChanges += 'el';
                         }
                         envChanges = envChanges
-                            + "if test \\$GIT_COMMIT = '" + cc.sha + "'" + br
-                            + "then" + br;
+                            + 'if test "$GIT_COMMIT" = "' + cc.sha + '"; then' + br;
 
                         if (diff.name !== null) {
                             envChanges = envChanges
-                                + "    export GIT_AUTHOR_NAME='" + escape(cc.name) + "'" + br
-                                + "    export GIT_COMMITTER_NAME='" + escape(cc.name) + "'" + br
+                                + '    export GIT_AUTHOR_NAME="' + escape(cc.name) + '"' + br
+                                + '    export GIT_COMMITTER_NAME="' + escape(cc.name) + '"' + br
                         }
                         if (diff.email !== null) {
                             envChanges = envChanges
-                                + "    export GIT_AUTHOR_EMAIL='" + cc.email + "'" + br
-                                + "    export GIT_COMMITTER_EMAIL='" + cc.email + "'" + br;
+                                + '    export GIT_AUTHOR_EMAIL="' + cc.email + '"' + br
+                                + '    export GIT_COMMITTER_EMAIL="' + cc.email + '"' + br;
                         }
                         if (diff.timestamp !== null) {
                             envChanges = envChanges
-                                + "    export GIT_AUTHOR_DATE='" + cc.timestamp + "'" + br
-                                + "    export GIT_COMMITTER_DATE='" + cc.timestamp + "'" + br
+                                + '    export GIT_AUTHOR_DATE="' + cc.timestamp + '"' + br
+                                + '    export GIT_COMMITTER_DATE="' + cc.timestamp + '"' + br
                         }
                     }
 
@@ -146,31 +164,52 @@ var v = new Vue({
                             msgChanges += 'el';
                         }
                         msgChanges = msgChanges
-                            + "if test \\$GIT_COMMIT = '" + cc.sha + "'" + br
-                            + "then" + br;
+                            + 'if test "$GIT_COMMIT" = "' + cc.sha + '"; then' + br;
 
                         if (diff.message !== null) {
                             msgChanges = msgChanges
-                                + "    echo '" + escape(cc.message) + "'" + br
+                                + '    echo "' + escape(cc.message) + '"' + br
                         }
                     }
                 }
             }
 
-            if (envChanges.length + msgChanges.length === 0) {
+            // Add bulk edit instructions
+            for (var n in this.bulkReplace.names) {
+                if (!this.bulkReplace.names.hasOwnProperty(n) || !this.bulkReplace.names[n]) {
+                    continue;
+                }
+                bulkChanges = bulkChanges + (bulkChanges.length > 0 ? 'fi; ' : '')
+                    + 'if test "$GIT_AUTHOR_NAME" = "' + n + '" || test "$GIT_COMMITTER_NAME" = "' + n + '"; then' + br
+                    + '    export GIT_AUTHOR_NAME="' + escape(this.bulkReplace.names[n]) + '"' + br
+                    + '    export GIT_COMMITTER_NAME="' + escape(this.bulkReplace.names[n]) + '"' + br
+            }
+
+            for (var e in this.bulkReplace.emails) {
+                if (!this.bulkReplace.emails.hasOwnProperty(e) || !this.bulkReplace.emails[e]) {
+                    continue;
+                }
+                bulkChanges = bulkChanges + (bulkChanges.length > 0 ? 'fi; ' : '')
+                    + 'if test "$GIT_AUTHOR_EMAIL" = "' + e + '" || test "$GIT_COMMITTER_EMAIL" = "' + e + '"; then' + br
+                    + '    export GIT_AUTHOR_EMAIL="' + escape(this.bulkReplace.emails[e]) + '"' + br
+                    + '    export GIT_COMMITTER_EMAIL="' + escape(this.bulkReplace.emails[e]) + '"' + br
+            }
+
+            if (envChanges.length + msgChanges.length + bulkChanges.length === 0) {
                 this.output = '';
                 return;
             }
 
             // Generate the whole script
             var script = 'git filter-branch ';
-            if (envChanges.length > 0) {
+            if (envChanges.length + bulkChanges.length > 0) {
                 script += '--env-filter \\' + br
-                    + '"' + envChanges + 'fi" ';
+                    + "'" + bulkChanges + (bulkChanges.length > 0 ? 'fi; ' : '')
+                    + envChanges + "fi' ";
             }
             if (msgChanges.length > 0) {
                 script += '--msg-filter \\' + br
-                    + '"' + msgChanges + 'else cat' + br + 'fi" ';
+                    + "'" + msgChanges + 'else cat' + br + "fi' ";
             }
 
             script += '&& rm -fr "$(git rev-parse --git-dir)/refs/original/"' + br;
@@ -181,6 +220,79 @@ var v = new Vue({
             });
         },
 
+        /**
+         * Add an empty bulk edit line
+         */
+        addBulk: function () {
+            this.bulks.push({
+                active: true,
+                emailToggle: false,
+                nameOptions: [],
+                emailOptions: [],
+                search: '',
+                replace: ''
+            });
+            this.updateBulkLines();
+        },
+
+        /**
+         * Remove an element from the bulk edit list.
+         * Actually just hidden (active = false) to avoid problems with the jQuery components
+         * @param index
+         */
+        removeBulk: function (index) {
+            this.bulks[index].search = '';
+            this.bulks[index].replace = '';
+
+            var active = 0;
+            for (var i = 0; i < this.bulks.length; i++) {
+                active += this.bulks[i].active ? 1 : 0;
+            }
+            this.bulks[index].active = active <= 1;
+            this.updateBulkLines();
+        },
+
+        /**
+         * Ensure that the user cannot choose the same option in two different bulk edit lines.
+         * Also, update the select component of each line, and reset replacement map for atomic edition
+         */
+        updateBulkLines: function () {
+            var self = this;
+            var search;
+            var emails = {};
+            var names = {};
+
+            var taken = {};
+            for (var i = 0; i < this.bulks.length; i++) {
+                search = this.bulks[i].search;
+                if (!search) {
+                    continue;
+                }
+                if (this.bulks[i].emailToggle) {
+                    emails[search] = this.bulks[i].replace
+                } else {
+                    names[search] = this.bulks[i].replace
+                }
+                taken[this.bulks[i].search] = i;
+            }
+
+            for (var j = 0; j < this.bulks.length; j++) {
+                search = this.bulks[j].search;
+                this.bulks[j].nameOptions = arrayDiff(this.authors.names, Object.keys(names), search);
+                this.bulks[j].emailOptions = arrayDiff(this.authors.emails, Object.keys(emails), search);
+            }
+
+            this.$set(this.bulkReplace, 'names', names);
+            this.$set(this.bulkReplace, 'emails', emails);
+
+            this.$nextTick(function () {
+                for (var k = 0; k < self.bulks.length; k++) {
+                    var $select = $('#bulk-search-' + k);
+                    $select.val(self.bulks[k].search);
+                    $select.material_select();
+                }
+            });
+        },
 
         /**
          * Switch to another tab
@@ -212,6 +324,29 @@ var v = new Vue({
                     });
                     break;
             }
+            this.$nextTick(function () {
+                window.scrollTo(0, 0);
+            });
+        },
+
+        /**
+         * Extract a list of author names and emails, sorted by number of commits.
+         */
+        extractAuthors: function () {
+            var authorMap = {};
+            var emailMap = {};
+            for (var i = 0; i < this.originalCommits.length; i++) {
+                var c = this.originalCommits[i];
+                authorMap[c.name] = authorMap[c.name] ? authorMap[c.name] + 1 : 1;
+                emailMap[c.email] = emailMap[c.email] ? emailMap[c.email] + 1 : 1;
+            }
+
+            this.authors.names = Object.keys(authorMap).sort(function (a, b) {
+                return authorMap[b] - authorMap[a];
+            });
+            this.authors.emails = Object.keys(emailMap).sort(function (a, b) {
+                return emailMap[b] - emailMap[a];
+            });
         },
 
         /**
@@ -418,4 +553,17 @@ function initTimePicker(el) {
  */
 function escape(str) {
     return str.replace(/'/g, "'\\\''").replace(/(["`])/g, '\\\$1').replace(/[\r\n]/g, '\\n');
+}
+
+/**
+ * Return the diff of two arrays, with an exception that should be kept.
+ * @param originalArray
+ * @param newArray
+ * @param exception
+ * @returns Array
+ */
+function arrayDiff(originalArray, newArray, exception) {
+    return originalArray.filter(function (i) {
+        return i === exception || newArray.indexOf(i) < 0;
+    });
 }

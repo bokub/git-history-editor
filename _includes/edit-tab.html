@@ -1,115 +1,186 @@
-<div v-cloak id="tab-edit" class="container content z-depth-1" style="display: none">
-    <div class="section">
-        <p>
-            Click on a field to start editing. Click on <i class="tiny material-icons">replay</i> to reset a commit to
-            its original state.
-            <br>
-            When you're finished, click on the 'export' tab above, or on the button at the bottom-right of the screen
-        </p>
+<div v-cloak id="tab-edit" class="container" style="display: none">
+    <div class="bulk-edition content z-depth-1">
+        <div class="bulk-add right">
+            <a @click="addBulk" href="javascript:void(0)" class="waves-effect waves-light btn accent">
+                <i class="material-icons left">add</i>Add one
+            </a>
+        </div>
+
+        <h2>Bulk edition</h2>
+
+        <div class="section">
+            <p>
+                Replace any email/name with the value of your choice.
+                Click on <i class="tiny material-icons">clear</i> to cancel.
+                <br>
+                When you're finished, click on the 'export' tab above, or on the button at the bottom-right of the
+                screen
+            </p>
+        </div>
+
+        <div class="bulk-zone row">
+            <div v-for="(bulk, index) in bulks" v-show="bulk.active" class="bulk-form valign-wrapper">
+                <!--The clear button-->
+                <a href="javascript:void(0)" @click="removeBulk(index)" class="black-text remove-bulk valign">
+                    <i class="material-icons">clear</i>
+                </a>
+
+                <!--Name/E-mail switch-->
+                <div class="switch valign">
+                    <label class="grey-text text-darken-2">
+                        Name
+                        <input type="checkbox" v-model="bulk.emailToggle" :data-index="index"
+                               onchange="v.setSearch($(this).attr('data-index'), '')">
+                        <span class="lever"></span>
+                        E-mail
+                    </label>
+                </div>
+
+                <!--Search -->
+                <div class="input-field col s4 valign">
+                    <select :id="'bulk-search-' + index" :data-index="index"
+                            onchange="v.setSearch($(this).attr('data-index'), $(this).val())">
+                        <option v-if="bulk.emailToggle" value="" disabled selected>Choose an e-mail</option>
+                        <option v-if="!bulk.emailToggle" value="" disabled selected>Choose a name</option>
+                        <template v-if="bulk.emailToggle">
+                            <option v-for="option in bulk.emailOptions" :value="option" v-text="option"></option>
+                        </template>
+                        <template v-else>
+                            <option v-for="option in bulk.nameOptions" :value="option" v-text="option"></option>
+                        </template>
+                    </select>
+                </div>
+
+                <!--Replace-->
+                <div class="input-field col s4">
+                    <input :id="'bulk-replace-' + index" :value="bulk.replace" :data-index="index"
+                           onkeyup="v.setReplace($(this).attr('data-index'), $(this).val())"
+                           onchange="v.setReplace($(this).attr('data-index'), $(this).val())">
+                    <label :for="'bulk-replace-' + index" :class="{active: bulk.replace != ''}">Replace with</label>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="row results">
-        <table class="striped">
-            <thead>
-            <tr>
-                <th></th>
-                <th>SHA</th>
-                <th>Name</th>
-                <th>E-mail</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Commit message</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="(commit, i) in currentCommits" :id="commit.sha">
+    <div class="atomic-edition content z-depth-1">
+        <h2>Atomic edition</h2>
 
-                <!--Reset-->
-                <td class="grey-text text-darken-2">
-                    <a href="javascript:void(0)" @click="resetCommit(i)" class="black-text">
-                        <i class="tiny material-icons">replay</i>
-                    </a>
-                </td>
+        <div class="section">
+            <p>
+                Click on a field to start editing. Click on <i class="tiny material-icons">replay</i> to reset a commit
+                to
+                its original state.
+                <br>
+                When you're finished, click on the 'export' tab above, or on the button at the bottom-right of the
+                screen
+            </p>
+        </div>
 
-                <!--SHA-->
-                <td class="commit-sha grey-text text-darken-2">[[ commit.sha.substring(0, 7) ]]</td>
+        <div class="row results">
+            <table class="striped">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>SHA</th>
+                    <th>Name</th>
+                    <th>E-mail</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Commit message</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(commit, i) in currentCommits" :id="commit.sha">
 
-                <!--Name-->
-                <td class="commit-name">
-                    <div v-if="commit.edited.name === false">
-                        <a @click="commit.edited.name=true; focus(commit.sha, 'name')" href="javascript:void(0)"
-                           class="link">
-                            [[ commit.name ]]
+                    <!--Reset-->
+                    <td class="grey-text text-darken-2">
+                        <a href="javascript:void(0)" @click="resetCommit(i)" class="black-text">
+                            <i class="tiny material-icons">replay</i>
                         </a>
-                    </div>
-                    <div v-else class="input-field">
-                        <input v-model="commit.name" placeholder="Commiter name">
-                    </div>
-                </td>
+                    </td>
 
-                <!--Email-->
-                <td class="commit-email">
-                    <div v-if="commit.edited.email === false">
-                        <a @click="commit.edited.email=true; focus(commit.sha, 'email')" href="javascript:void(0)"
-                           class="link">
-                            [[ commit.email ]]
-                        </a>
-                    </div>
-                    <div v-else class="input-field">
-                        <input v-model="commit.email" placeholder="Commiter e-mail" type="email">
-                    </div>
-                </td>
+                    <!--SHA-->
+                    <td class="commit-sha grey-text text-darken-2">[[ commit.sha.substring(0, 7) ]]</td>
 
-                <!--Date-->
-                <td class="commit-date">
-                    <div v-if="commit.edited.date === false">
-                        <a @click="commit.edited.date=true; focus(commit.sha, 'date')" href="javascript:void(0)"
-                           class="link">
-                            [[ commit.date ]]
-                        </a>
-                    </div>
-                    <div v-else class="input-field">
-                        <input v-model="commit.date" :data-commit-number="i" type="date"
-                               onchange="v.setDate($(this).attr('data-commit-number'), $(this).val())"
-                               class="datepicker">
-                    </div>
-                </td>
+                    <!--Name-->
+                    <td class="commit-name">
+                        <div v-if="commit.edited.name === false">
+                            <a @click="commit.edited.name=true; focus(commit.sha, 'name')" href="javascript:void(0)"
+                               class="link" :class="{'bulk-edited': bulkReplace.names[commit.name]}">
+                                [[ bulkReplace.names[commit.name] || commit.name ]]
+                            </a>
+                        </div>
+                        <div v-else class="input-field">
+                            <input v-model="commit.name" placeholder="Commiter name">
+                        </div>
+                    </td>
 
-                <!--Time-->
-                <td class="commit-time">
-                    <div v-if="commit.edited.time === false">
-                        <a @click="commit.edited.time=true; focus(commit.sha, 'time')" href="javascript:void(0)"
-                           class="link">
-                            [[ commit.time ]]
-                        </a>
-                    </div>
-                    <div v-else class="input-field">
-                        <input v-model="commit.time" :data-commit-number="i"
-                               onchange="v.setTime($(this).attr('data-commit-number'), $(this).val())" name="timepicker"
-                               class="timepicker">
-                    </div>
+                    <!--Email-->
+                    <td class="commit-email">
+                        <div v-if="commit.edited.email === false">
+                            <a @click="commit.edited.email=true; focus(commit.sha, 'email')" href="javascript:void(0)"
+                               class="link" :class="{'bulk-edited': bulkReplace.emails[commit.email]}">
+                                [[ bulkReplace.emails[commit.email] || commit.email ]]
+                            </a>
+                        </div>
+                        <div v-else class="input-field">
+                            <input v-model="commit.email" placeholder="Commiter e-mail" type="email">
+                        </div>
+                    </td>
 
-                </td>
+                    <!--Date-->
+                    <td class="commit-date">
+                        <div v-if="commit.edited.date === false">
+                            <a @click="commit.edited.date=true; focus(commit.sha, 'date')" href="javascript:void(0)"
+                               class="link">
+                                [[ commit.date ]]
+                            </a>
+                        </div>
+                        <div v-else class="input-field">
+                            <input v-model="commit.date" :data-commit-number="i" type="date"
+                                   onchange="v.setDate($(this).attr('data-commit-number'), $(this).val())"
+                                   class="datepicker">
+                        </div>
+                    </td>
 
-                <!--Message-->
-                <td class="commit-message">
-                    <div v-if="commit.edited.message === false">
-                        <a @click="commit.edited.message=true; focus(commit.sha, 'message')"
-                           href="javascript:void(0)" class="link">
-                            [[ commit.message ]]
-                        </a>
-                    </div>
-                    <div v-else class="input-field">
-                        <textarea v-model="commit.message" class="materialize-textarea no-transition"></textarea></div>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+                    <!--Time-->
+                    <td class="commit-time">
+                        <div v-if="commit.edited.time === false">
+                            <a @click="commit.edited.time=true; focus(commit.sha, 'time')" href="javascript:void(0)"
+                               class="link">
+                                [[ commit.time ]]
+                            </a>
+                        </div>
+                        <div v-else class="input-field">
+                            <input v-model="commit.time" :data-commit-number="i"
+                                   onchange="v.setTime($(this).attr('data-commit-number'), $(this).val())"
+                                   name="timepicker"
+                                   class="timepicker">
+                        </div>
 
-    <div class="fixed-action-btn">
-        <a class="btn-floating btn-large accent" href="javascript:void(0)" @click="changeStep('export')">
-            <i class="large material-icons">done</i>
-        </a>
+                    </td>
+
+                    <!--Message-->
+                    <td class="commit-message">
+                        <div v-if="commit.edited.message === false">
+                            <a @click="commit.edited.message=true; focus(commit.sha, 'message')"
+                               href="javascript:void(0)" class="link">
+                                [[ commit.message ]]
+                            </a>
+                        </div>
+                        <div v-else class="input-field">
+                            <textarea v-model="commit.message" class="materialize-textarea no-transition"></textarea>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="fixed-action-btn">
+            <a class="btn-floating btn-large accent" href="javascript:void(0)" @click="changeStep('export')">
+                <i class="large material-icons">done</i>
+            </a>
+        </div>
     </div>
 </div>

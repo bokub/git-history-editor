@@ -176,7 +176,7 @@ var v = new Vue({
 
             // Add bulk edit instructions
             for (var n in this.bulkReplace.names) {
-                if (!this.bulkReplace.names.hasOwnProperty(n)) {
+                if (!this.bulkReplace.names.hasOwnProperty(n) || !this.bulkReplace.names[n]) {
                     continue;
                 }
                 bulkChanges = bulkChanges + (bulkChanges.length > 0 ? 'fi; ' : '')
@@ -186,7 +186,7 @@ var v = new Vue({
             }
 
             for (var e in this.bulkReplace.emails) {
-                if (!this.bulkReplace.emails.hasOwnProperty(e)) {
+                if (!this.bulkReplace.emails.hasOwnProperty(e) || !this.bulkReplace.emails[e]) {
                     continue;
                 }
                 bulkChanges = bulkChanges + (bulkChanges.length > 0 ? 'fi; ' : '')
@@ -195,7 +195,7 @@ var v = new Vue({
                     + '    export GIT_COMMITTER_EMAIL="' + escape(this.bulkReplace.emails[e]) + '"' + br
             }
 
-            if (envChanges.length + msgChanges.length === 0) {
+            if (envChanges.length + msgChanges.length + bulkChanges.length === 0) {
                 this.output = '';
                 return;
             }

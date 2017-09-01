@@ -30,7 +30,7 @@
                     <label class="grey-text text-darken-2">
                         Name
                         <input type="checkbox" v-model="bulk.emailToggle" :data-index="index"
-                               onchange="v.setSearch($(this).attr('data-index'), '')">
+                               onchange="v.set($(this).attr('data-index'), '', 'search')">
                         <span class="lever"></span>
                         E-mail
                     </label>
@@ -39,7 +39,7 @@
                 <!--Search -->
                 <div class="input-field col s4 valign">
                     <select :id="'bulk-search-' + index" :data-index="index"
-                            onchange="v.setSearch($(this).attr('data-index'), $(this).val())">
+                            onchange="v.set($(this).attr('data-index'), $(this).val(), 'search')">
                         <option v-if="bulk.emailToggle" value="" disabled selected>Choose an e-mail</option>
                         <option v-if="!bulk.emailToggle" value="" disabled selected>Choose a name</option>
                         <template v-if="bulk.emailToggle">
@@ -54,8 +54,8 @@
                 <!--Replace-->
                 <div class="input-field col s4">
                     <input :id="'bulk-replace-' + index" :value="bulk.replace" :data-index="index"
-                           onkeyup="v.setReplace($(this).attr('data-index'), $(this).val())"
-                           onchange="v.setReplace($(this).attr('data-index'), $(this).val())">
+                           onkeyup="v.set($(this).attr('data-index'), $(this).val(), 'replace')"
+                           onchange="v.set($(this).attr('data-index'), $(this).val(), 'replace')">
                     <label :for="'bulk-replace-' + index" :class="{active: bulk.replace != ''}">Replace with</label>
                 </div>
             </div>
@@ -138,7 +138,7 @@
                         </div>
                         <div v-else class="input-field">
                             <input v-model="commit.date" :data-commit-number="i" type="date"
-                                   onchange="v.setDate($(this).attr('data-commit-number'), $(this).val())"
+                                   onchange="v.set($(this).attr('data-commit-number'), $(this).val(), 'date')"
                                    class="datepicker">
                         </div>
                     </td>
@@ -153,7 +153,7 @@
                         </div>
                         <div v-else class="input-field">
                             <input v-model="commit.time" :data-commit-number="i"
-                                   onchange="v.setTime($(this).attr('data-commit-number'), $(this).val())"
+                                   onchange="v.set($(this).attr('data-commit-number'), $(this).val(), 'time')"
                                    name="timepicker"
                                    class="timepicker">
                         </div>

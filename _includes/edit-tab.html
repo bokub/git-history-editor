@@ -106,8 +106,8 @@
                     <td class="commit-name">
                         <div v-if="commit.edited.name === false">
                             <a @click="commit.edited.name=true; focus(commit.sha, 'name')" href="javascript:void(0)"
-                               class="link" :class="{'bulk-edited': bulkReplace.names[commit.name]}">
-                                [[ bulkReplace.names[commit.name] || commit.name ]]
+                               class="link" :class="{'bulk-edited': bulkReplace.name[commit.name]}">
+                                [[ bulkReplace.name[commit.name] || commit.name ]]
                             </a>
                         </div>
                         <div v-else class="input-field">
@@ -119,8 +119,8 @@
                     <td class="commit-email">
                         <div v-if="commit.edited.email === false">
                             <a @click="commit.edited.email=true; focus(commit.sha, 'email')" href="javascript:void(0)"
-                               class="link" :class="{'bulk-edited': bulkReplace.emails[commit.email]}">
-                                [[ bulkReplace.emails[commit.email] || commit.email ]]
+                               class="link" :class="{'bulk-edited': bulkReplace.email[commit.email]}">
+                                [[ bulkReplace.email[commit.email] || commit.email ]]
                             </a>
                         </div>
                         <div v-else class="input-field">

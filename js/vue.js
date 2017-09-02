@@ -1,3 +1,6 @@
+//noinspection JSUnusedGlobalSymbols
+/* eslint-disable guard-for-in */
+
 var br = '\n';
 
 var steps = {
@@ -6,7 +9,6 @@ var steps = {
     export: [3, 'tab-export']
 };
 
-//noinspection JSUnusedGlobalSymbols
 var v = new Vue({
     el: 'main',
     delimiters: ['[[', ']]'],
@@ -16,14 +18,8 @@ var v = new Vue({
         originalCommits: [],
         currentCommits: [],
         bulks: [],
-        authors: {
-            emails: [],
-            names: []
-        },
-        bulkReplace: {
-            emails: {},
-            names: {}
-        },
+        authors: {email: [], name: []},
+        bulkReplace: {email: {}, name: {}},
         step: 1,
         output: ''
     },
@@ -177,20 +173,23 @@ var v = new Vue({
          * Extract a list of author names and emails, sorted by number of commits.
          */
         extractAuthors: function () {
-            var authorMap = {};
-            var emailMap = {};
+            var loop = {name: {}, email: {}};
+
+            // Count number of commits for each name/email
             for (var i = 0; i < this.originalCommits.length; i++) {
                 var c = this.originalCommits[i];
-                authorMap[c.name] = authorMap[c.name] ? authorMap[c.name] + 1 : 1;
-                emailMap[c.email] = emailMap[c.email] ? emailMap[c.email] + 1 : 1;
+                for (var l in loop) {
+                    loop[l][c[l]] = loop[l][c[l]] ? loop[l][c[l]] + 1 : 1
+                }
             }
 
-            this.authors.names = Object.keys(authorMap).sort(function (a, b) {
-                return authorMap[b] - authorMap[a];
-            });
-            this.authors.emails = Object.keys(emailMap).sort(function (a, b) {
-                return emailMap[b] - emailMap[a];
-            });
+            // Sort
+            for (var k in loop) {
+                const map = loop[k];
+                this.authors[k] = Object.keys(map).sort(function (a, b) {
+                    return map[b] - map[a];
+                });
+            }
         },
 
         /**
@@ -199,38 +198,34 @@ var v = new Vue({
          */
         updateBulkLines: function () {
             var self = this;
-            var search;
-            var emails = {};
-            var names = {};
+            var loop = {name: {}, email: {}};
 
-            var taken = {};
+            // Retrieve all names and emails selected
             for (var i = 0; i < this.bulks.length; i++) {
-                search = this.bulks[i].search;
+                var search = this.bulks[i].search;
                 if (!search) {
                     continue;
                 }
-                if (this.bulks[i].emailToggle) {
-                    emails[search] = this.bulks[i].replace
-                } else {
-                    names[search] = this.bulks[i].replace
-                }
-                taken[this.bulks[i].search] = i;
+                loop[this.bulks[i].emailToggle ? 'email' : 'name'][search] = this.bulks[i].replace;
             }
 
+            // Ensure each select component has only unchosen options
             for (var j = 0; j < this.bulks.length; j++) {
-                search = this.bulks[j].search;
-                this.bulks[j].nameOptions = arrayDiff(this.authors.names, Object.keys(names), search);
-                this.bulks[j].emailOptions = arrayDiff(this.authors.emails, Object.keys(emails), search);
+                for (var l in loop) {
+                    this.bulks[j][l + 'Options'] = arrayDiff(this.authors[l], Object.keys(loop[l]), this.bulks[j].search);
+                }
             }
 
-            this.$set(this.bulkReplace, 'names', names);
-            this.$set(this.bulkReplace, 'emails', emails);
+            // Save the replacements map
+            for (var k in loop) {
+                this.$set(this.bulkReplace, k, loop[k]);
+            }
 
+            // Update the select components
             this.$nextTick(function () {
-                for (var k = 0; k < self.bulks.length; k++) {
-                    var $select = $('#bulk-search-' + k);
-                    $select.val(self.bulks[k].search);
-                    $select.material_select();
+                for (var m = 0; m < self.bulks.length; m++) {
+                    var $select = $('#bulk-search-' + m);
+                    $select.val(self.bulks[m].search).material_select();
                 }
             });
         },
@@ -251,7 +246,6 @@ var v = new Vue({
                     }
                 });
             });
-
         },
 
         /**
@@ -272,11 +266,9 @@ var v = new Vue({
          * Update a value. Necessary because some inputs cannot bind with vue variables.
          */
         set: function (index, newValue, target) {
-            if (target === 'time' || target === 'date') {
+            if (['time', 'date'].indexOf(target) > -1) {
                 this.currentCommits[index][target] = newValue ? newValue : this.originalCommits[index][target];
-                return
-            }
-            if (target === 'search' || target === 'replace') {
+            } else if (['search', 'replace'].indexOf(target) > -1) {
                 this.bulks[index][target] = newValue ? newValue : '';
                 this.updateBulkLines();
             }
@@ -376,8 +368,8 @@ function generateFilterEnvScript(diff, result, cc) {
 function generateBulkEditScript(bulkReplace, result) {
     // Add bulk edit instructions
     var loop = {
-        names: ['GIT_AUTHOR_NAME', 'GIT_COMMITTER_NAME'],
-        emails: ['GIT_AUTHOR_EMAIL', 'GIT_COMMITTER_EMAIL']
+        name: ['GIT_AUTHOR_NAME', 'GIT_COMMITTER_NAME'],
+        email: ['GIT_AUTHOR_EMAIL', 'GIT_COMMITTER_EMAIL']
     };
 
     for (var l in loop) {

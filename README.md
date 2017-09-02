@@ -1,13 +1,27 @@
-# Git History Editor
-Git History Editor is an easy-to-use online tool hosted by Github Pages, intended to help you edit your past commits. 
+# Git history editor
+
+[![Code Climate](https://img.shields.io/codeclimate/github/bokub/git-history-editor.svg)](https://codeclimate.com/github/bokub/git-history-editor)
+[![License](https://img.shields.io/badge/license-Apache_2.0-f49068.svg)](https://raw.githubusercontent.com/bokub/git-history-editor/master/LICENSE)
+
+**Git history editor** is an easy-to-use online tool hosted by Github Pages, intended to help you edit your past commits.
+Just type [`git.io/editor`](https://git.io/editor) to use it ⚡️
+
+[![Git history editor](http://bit.ly/2eOyTGA)](https://git.io/editor)
 
 
-## [<p align="center">git.io/editor</p>](https://git.io/editor)
+## Features
+
+- [X] Bulk editing mode
+- [x] Atomic editing mode
+- [x] Edit author name / email
+- [x] Edit commit time / date
+- [x] Edit commit message
 
 
 ## How it works
 
 Editing your git history takes 3 main steps:
+
 
 ### Step 1: Import
 
@@ -24,14 +38,15 @@ The import command to run is the following:
 git log -1000 --pretty=format:"%H*#%an*#%ae*#%at*#%s" | base64
 ```
 
+
 ### Step 2: Edit
 
-Git History Editor has a nice UI designed to let you edit what you want in each one of your past commits. [Just try it](https://git.io/editor).
+Git History Editor has a nice UI designed to let you edit what you want in each one of your past commits, or create a rule that will apply to multiple commits. [Just try it](https://git.io/editor).
+
 
 ### Step 3: Export
 
-When the edition step is finished, Git History Editor provides a script that can be run inside the project in order to
-apply the changes.
+When the edition step is finished, Git History Editor provides a script that you can run in order to apply the changes immediatly.
 
 This script uses the `git filter-branch` command, which is the less painful way to rewrite a git branch history with precision.
 
@@ -44,11 +59,3 @@ This script uses the `git filter-branch` command, which is the less painful way 
 - [Prism](https://github.com/PrismJS/prism)
 - [Jekyll](https://github.com/jekyll/jekyll)
 - [Sass](https://github.com/sass/sass)
-
-## TODO list
-
-- [x] Atomic editing mode
-- [x] Edit author name / email
-- [x] Edit commit time / date
-- [x] Edit commit message
-- [ ] Bulk editing mode

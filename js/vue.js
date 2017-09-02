@@ -185,7 +185,7 @@ var v = new Vue({
 
             // Sort
             for (var k in loop) {
-                const map = loop[k];
+                var map = loop[k];
                 this.authors[k] = Object.keys(map).sort(function (a, b) {
                     return map[b] - map[a];
                 });
@@ -198,35 +198,24 @@ var v = new Vue({
          */
         updateBulkLines: function () {
             var self = this;
-            var loop = {name: {}, email: {}};
-
-            // Retrieve all names and emails selected
-            for (var i = 0; i < this.bulks.length; i++) {
-                var search = this.bulks[i].search;
-                if (!search) {
-                    continue;
-                }
-                loop[this.bulks[i].emailToggle ? 'email' : 'name'][search] = this.bulks[i].replace;
-            }
+            var selected = {name: {}, email: {}};
+            scanSelected(this.bulks, selected);
 
             // Ensure each select component has only unchosen options
             for (var j = 0; j < this.bulks.length; j++) {
-                for (var l in loop) {
-                    this.bulks[j][l + 'Options'] = arrayDiff(this.authors[l], Object.keys(loop[l]), this.bulks[j].search);
+                for (var l in selected) {
+                    this.bulks[j][l + 'Options'] = arrayDiff(this.authors[l], Object.keys(selected[l]), this.bulks[j].search);
                 }
             }
 
             // Save the replacements map
-            for (var k in loop) {
-                this.$set(this.bulkReplace, k, loop[k]);
+            for (var k in selected) {
+                this.$set(this.bulkReplace, k, selected[k]);
             }
 
             // Update the select components
             this.$nextTick(function () {
-                for (var m = 0; m < self.bulks.length; m++) {
-                    var $select = $('#bulk-search-' + m);
-                    $select.val(self.bulks[m].search).material_select();
-                }
+                self.updateSelects();
             });
         },
 
@@ -271,6 +260,16 @@ var v = new Vue({
             } else if (['search', 'replace'].indexOf(target) > -1) {
                 this.bulks[index][target] = newValue ? newValue : '';
                 this.updateBulkLines();
+            }
+        },
+
+        /**
+         * Update the select components
+         */
+        updateSelects: function () {
+            for (var i = 0; i < this.bulks.length; i++) {
+                var $select = $('#bulk-search-' + i);
+                $select.val(this.bulks[i].search).material_select();
             }
         },
 
@@ -353,7 +352,7 @@ function generateFilterEnvScript(diff, result, cc) {
 
     for (var l in loop) {
         if (diff[l]) {
-            const val = escape(cc[l]);
+            var val = escape(cc[l]);
             result = result
                 + '    export ' + loop[l][0] + '="' + val + '"' + br
                 + '    export ' + loop[l][1] + '="' + val + '"' + br;
@@ -375,7 +374,7 @@ function generateBulkEditScript(bulkReplace, result) {
     for (var l in loop) {
         for (var i in bulkReplace[l]) {
             if (bulkReplace[l][i]) {
-                const val = escape(bulkReplace[l][i]);
+                var val = escape(bulkReplace[l][i]);
                 result.bulk = result.bulk + (result.bulk.length > 0 ? 'fi; ' : '')
                     + 'if test "$' + loop[l][0] + '" = "' + i + '" ||' + br
                     + '    test "$' + loop[l][1] + '" = "' + i + '"; then' + br
@@ -383,6 +382,20 @@ function generateBulkEditScript(bulkReplace, result) {
                     + '    export ' + loop[l][1] + '="' + val + '"' + br
             }
         }
+    }
+}
+
+/**
+ * Retrieve the values selected in the bulk edit lines
+ */
+function scanSelected(bulks, selected) {
+    // Retrieve all names and emails selected
+    for (var i = 0; i < bulks.length; i++) {
+        var search = bulks[i].search;
+        if (!search) {
+            continue;
+        }
+        selected[bulks[i].emailToggle ? 'email' : 'name'][search] = bulks[i].replace;
     }
 }
 

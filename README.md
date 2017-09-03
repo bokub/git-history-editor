@@ -4,6 +4,7 @@
 [![License](https://img.shields.io/badge/license-Apache_2.0-f49068.svg)](https://raw.githubusercontent.com/bokub/git-history-editor/master/LICENSE)
 
 **Git history editor** is an easy-to-use online tool hosted by Github Pages, intended to help you edit your past commits.
+
 Just type [`git.io/editor`](https://git.io/editor) to use it ⚡️
 
 [![Git history editor](http://bit.ly/2eOyTGA)](https://git.io/editor)
@@ -11,8 +12,8 @@ Just type [`git.io/editor`](https://git.io/editor) to use it ⚡️
 
 ## Features
 
-- [X] Bulk editing mode
-- [x] Atomic editing mode
+- [X] Bulk edit mode
+- [x] Regular edit mode
 - [x] Edit author name / email
 - [x] Edit commit time / date
 - [x] Edit commit message
@@ -46,7 +47,7 @@ Git History Editor has a nice UI designed to let you edit what you want in each 
 
 ### Step 3: Export
 
-When the edition step is finished, Git History Editor provides a script that you can run in order to apply the changes immediatly.
+When the `edit` step is finished, Git History Editor provides a script that you can run in order to apply the changes immediatly.
 
 This script uses the `git filter-branch` command, which is the less painful way to rewrite a git branch history with precision.
 

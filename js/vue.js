@@ -86,7 +86,7 @@ var v = new Vue({
             var result = {bulk: '', env: '', msg: ''};
 
             // Generate the --env-filter command and the --msg-filter command
-            generateAtomicEditScript(this.originalCommits, this.currentCommits, result);
+            generateRegularEditScript(this.originalCommits, this.currentCommits, result);
             generateBulkEditScript(this.bulkReplace, result);
 
             if (result.env.length + result.msg.length + result.bulk.length === 0) {
@@ -125,7 +125,7 @@ var v = new Vue({
             });
         },
 
-        // ==== Atomic edition methods ====
+        // ==== Regular edit methods ====
 
         /**
          * Remove every modifications made on a single commit
@@ -194,7 +194,7 @@ var v = new Vue({
 
         /**
          * Ensure that the user cannot choose the same option in two different bulk edit lines.
-         * Also, update the select component of each line, and reset replacement map for atomic edition
+         * Also, update the select component of each line, and reset replacement map for regular edit UI
          */
         updateBulkLines: function () {
             var self = this;
@@ -318,9 +318,9 @@ function b64DecodeUnicode(str) {
 }
 
 /**
- * Generate bash script for atomic edition
+ * Generate bash script for regular edit
  */
-function generateAtomicEditScript(originalCommits, currentCommits, result) {
+function generateRegularEditScript(originalCommits, currentCommits, result) {
     for (var c in currentCommits) {
         var cc = currentCommits[c];
         var diff = computeDiff(cc, originalCommits[c]);
@@ -362,7 +362,7 @@ function generateFilterEnvScript(diff, result, cc) {
 }
 
 /**
- * Generate bash script for bulk edition
+ * Generate bash script for bulk edit
  */
 function generateBulkEditScript(bulkReplace, result) {
     // Add bulk edit instructions

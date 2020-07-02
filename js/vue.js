@@ -98,7 +98,7 @@ var v = new Vue({
             var script = 'git filter-branch ';
             if (result.env.length + result.bulk.length > 0) {
                 script += '--env-filter \\' + br
-                    + "'" + result.bulk + (result.bulk.length > 0 ? 'fi; ' : '')
+                    + "'" + result.bulk + (result.bulk.length > 0  && result.env.length > 0 ? 'fi; ' : '')
                     + result.env + "fi' ";
             }
             if (result.msg.length > 0) {

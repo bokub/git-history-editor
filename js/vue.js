@@ -83,11 +83,25 @@ var v = new Vue({
          * Compute bash script to display on export tab
          */
         exportScript: function () {
-            var result = {bulk: '', env: '', msg: ''};
+            var result = {env: '', msg: ''};
 
             // Generate the --env-filter command and the --msg-filter command
-            generateRegularEditScript(this.originalCommits, this.currentCommits, result);
-            generateBulkEditScript(this.bulkReplace, result);
+            for (var c in this.currentCommits) {
+                var cc = this.currentCommits[c];
+                var diff = computeDiff(cc, this.originalCommits[c]);
+                if (diff.env) {
+                    result.env = generateFilterEnvScript(diff, result.env, cc);
+                }
+                if (diff.msg) {
+                    result.msg = generateFilterMsgScript(diff, result.msg, cc)
+                }
+                if (diff.env || diff.msg) {
+                    result.oldest = cc.sha;
+                }
+            }
+
+            // Generate the --env-filter for the bulk edit part
+            result.bulk = generateBulkEditScript(this.bulkReplace);
 
             if (result.env.length + result.msg.length + result.bulk.length === 0) {
                 this.output = '';
@@ -104,6 +118,10 @@ var v = new Vue({
             if (result.msg.length > 0) {
                 script += '--msg-filter \\' + br
                     + "'" + result.msg + 'else cat' + br + "fi' ";
+            }
+
+            if (!result.bulk && result.oldest) {
+                script += result.oldest.substr(0, 7) + '^..HEAD' +  ' ';
             }
 
             script += '&& rm -fr "$(git rev-parse --git-dir)/refs/original/"' + br;
@@ -317,22 +335,6 @@ function b64DecodeUnicode(str) {
     }
 }
 
-/**
- * Generate bash script for regular edit
- */
-function generateRegularEditScript(originalCommits, currentCommits, result) {
-    for (var c in currentCommits) {
-        var cc = currentCommits[c];
-        var diff = computeDiff(cc, originalCommits[c]);
-        if (diff.env) {
-            result.env = generateFilterEnvScript(diff, result.env, cc);
-        }
-        if (diff.msg) {
-            result.msg = generateFilterMsgScript(diff, result.msg, cc)
-        }
-    }
-}
-
 function generateFilterMsgScript(diff, result, cc) {
     result += result.length > 0 ? 'el' : '';
     result += 'if test "$GIT_COMMIT" = "' + cc.sha + '"; then' + br;
@@ -364,7 +366,8 @@ function generateFilterEnvScript(diff, result, cc) {
 /**
  * Generate bash script for bulk edit
  */
-function generateBulkEditScript(bulkReplace, result) {
+function generateBulkEditScript(bulkReplace) {
+    var res = '';
     // Add bulk edit instructions
     var loop = {
         name: ['GIT_AUTHOR_NAME', 'GIT_COMMITTER_NAME'],
@@ -375,7 +378,7 @@ function generateBulkEditScript(bulkReplace, result) {
         for (var i in bulkReplace[l]) {
             if (bulkReplace[l][i]) {
                 var val = escape(bulkReplace[l][i]);
-                result.bulk = result.bulk + (result.bulk.length > 0 ? 'fi; ' : '')
+                res += (res.length > 0 ? 'fi; ' : '')
                     + 'if test "$' + loop[l][0] + '" = "' + i + '" ||' + br
                     + '    test "$' + loop[l][1] + '" = "' + i + '"; then' + br
                     + '    export ' + loop[l][0] + '="' + val + '"' + br
@@ -383,6 +386,7 @@ function generateBulkEditScript(bulkReplace, result) {
             }
         }
     }
+    return res;
 }
 
 /**

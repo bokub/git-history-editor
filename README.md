@@ -1,7 +1,6 @@
 # Git history editor
 
-[![Code Climate](https://img.shields.io/codeclimate/github/bokub/git-history-editor.svg)](https://codeclimate.com/github/bokub/git-history-editor)
-[![License](https://img.shields.io/badge/license-Apache_2.0-f49068.svg)](https://raw.githubusercontent.com/bokub/git-history-editor/master/LICENSE)
+[![License](https://flat.badgen.net/github/license/bokub/git-history-editor?color=f49068)](https://raw.githubusercontent.com/bokub/git-history-editor/master/LICENSE)
 
 **Git history editor** is an easy-to-use online tool hosted by Github Pages, intended to help you edit your past commits.
 

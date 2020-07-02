@@ -1,2 +1,2 @@
-git log -100 --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64 -w 0
-echo -e '\n\n↑ \e[1mDouble-click\e[0m to select, and \e[1mcopy/paste\e[0m in Git History Editor'
+echo -e "\e[33m$(git log -100 --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64 -w 0)\e[39m"
+echo -e '\n\e[32m↑\e[39m \e[1mDouble-click\e[0m to select, then \e[1mcopy/paste\e[0m it in Git History Editor\e[39m \e[32m↑\e[39m'

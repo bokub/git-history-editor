@@ -35,7 +35,13 @@ Only the last 100 commits are imported, because a really huge commit history cou
 The import command to run is the following:
 
 ```bash
-git log -100 --pretty=format:"%H*#%an*#%ae*#%at*#%s" | base64
+curl -fsSL https://git.io/import.sh | bash
+```
+
+which is basically a shortcut for:
+
+```bash
+git log -100 --pretty=format:"%H*#%an*#%ae*#%at*#%s" | base64 -w 0
 ```
 
 

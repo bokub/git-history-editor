@@ -31,12 +31,12 @@ In order to import information about past commits in any project, Git History Ed
 Because this log is made to be read by a program, it is formatted using the `--pretty=format` option of `git log`, then encoded
 to `base64` to avoid problems with carriage returns or spaces. 
 
-Only the last 1000 commits are imported, because a really huge commit history could drastically slow down your browser, or even make it crash.
+Only the last 100 commits are imported, because a really huge commit history could drastically slow down your browser, or even make it crash.
 
 The import command to run is the following:
 
 ```bash
-git log -1000 --pretty=format:"%H*#%an*#%ae*#%at*#%s" | base64
+git log -100 --pretty=format:"%H*#%an*#%ae*#%at*#%s" | base64
 ```
 
 

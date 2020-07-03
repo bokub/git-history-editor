@@ -463,7 +463,7 @@ function initDatePicker(el) {
  * Initialize clipboard.js
  */
 function initClipboard() {
-    var clipboard = new Clipboard('.clipboard', {});
+    var clipboard = new ClipboardJS('.clipboard', {});
 
     clipboard.on('success', function () {
         Materialize.toast('Copied to clipboard', 1500);

@@ -1,2 +1,8 @@
-echo -e "\e[33m$(git log -100 --pretty=format:"%H*#%an*#%ae*#%at*#%s"|base64 -w 0)\e[39m"
-echo -e '\n\e[32m↑\e[39m \e[1mDouble-click\e[0m to select, then \e[1mcopy/paste\e[0m it in Git History Editor\e[39m \e[32m↑\e[39m'
+if [[ "$OSTYPE" == "darwin"* ]]; then
+	gnubase64=gbase64
+else
+	gnubase64=base64
+fi
+
+echo -e "$(git log -100 --pretty=format:"%H*#%an*#%ae*#%at*#%s"|${gnubase64} -w 0)"
+echo -e 'Double-click to select, then copy/paste it in Git History Editor'

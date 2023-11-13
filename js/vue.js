@@ -110,6 +110,12 @@ var v = new Vue({
 
             // Generate the whole script
             var script = 'git filter-branch ';
+
+            // Squelch warning on newer git version.
+            // Git hold us for seconds to suggest us to:
+            // "use an alternative filtering tool such as 'git filter-repo' (https://github.com/newren/git-filter-repo/) instead
+            script = 'FILTER_BRANCH_SQUELCH_WARNING=1 ' + script;
+            
             if (result.env.length + result.bulk.length > 0) {
                 script += '--env-filter \\' + br
                     + "'" + result.bulk + (result.bulk.length > 0  && result.env.length > 0 ? 'fi; ' : '')
